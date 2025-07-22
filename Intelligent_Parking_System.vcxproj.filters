@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="CTools.cpp" />
+    <ClCompile Include="CBaseSocket.cpp" />
+    <ClCompile Include="CEpollServer.cpp" />
+    <ClCompile Include="CHostAddress.cpp" />
+    <ClCompile Include="CTcpServer.cpp" />
+    <ClCompile Include="CThreadPool.cpp" />
+    <ClCompile Include="CBaseTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CTaskFactory.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CLoginTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="IPCManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CTools.h" />
+    <ClInclude Include="protocol.h" />
+    <ClInclude Include="CBaseSocket.h" />
+    <ClInclude Include="CEpollServer.h" />
+    <ClInclude Include="CHostAddress.h" />
+    <ClInclude Include="CTcpServer.h" />
+    <ClInclude Include="CThreadPool.h" />
+    <ClInclude Include="CBaseTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CTaskFactory.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CLoginTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="IPCManager.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="task">
+      <UniqueIdentifier>{b42fc615-1dbc-4dc8-a815-90743d3dfd9b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

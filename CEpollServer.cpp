@@ -1,0 +1,294 @@
+#include "CEpollServer.h"
+
+CEpollServer::CEpollServer(unsigned short port, int maxEvents)
+{
+	//搭建Tcp网络通道
+	socketServer.reset(new CTcpServer(port));
+	socketServer->work();
+	socketfd = socketServer->getSocketfd();
+	epollfd = 0;
+	this->maxEvents = maxEvents;
+	//相当于初始化maxEvents个迎宾小姐，一次最多招待maxEvents人，但是多的人可以排队
+	epolleventArray.reset(new struct epoll_event[maxEvents]);
+	/*
+	1. epoll_create(size) 的 size 参数
+	历史遗留参数：
+	在早期 Linux 内核（2.6.8 之前），size 表示 epoll 实例初始监控的文件描述符（fd）数量。
+	但自 Linux 2.6.8 起，size 被忽略，内核会动态调整 epoll 的容量。
+
+	现代用法：
+	为了兼容性，size 只需传递一个大于 0 的值（如 5），实际无限制。
+	*/
+	//1.创建epoll红黑树结构，参数含义为可以识别到有多少个fd
+	epollfd = epoll_create(EPOLL_SIZE);
+	//2.将服务器网络通道socketfd保存到epoll监听事件列表中，一旦是socketfd事件被触发那么一定是有客户端来连接
+	/*EPOLLIN
+	当文件描述符（如套接字、管道等）的接收缓冲区中有数据可读时，epoll 会报告 EPOLLIN 事件。
+	对于 TCP 套接字，以下情况会触发：
+		客户端发送数据到达。
+		客户端正常关闭连接（触发 read() 返回 0）。
+	对于 监听套接字（Server Socket），表示有新连接到达（需调用 accept()）。
+	*/
+
+	//这里需要LT而不是ET，如果是ET就要用while然后就会卡死，如果不用while，就会监听不到同时到达的客户端
+	epollControl(socketfd, EPOLL_CTL_ADD, 1);
+	bzero(this->epolleventArray.get(), sizeof(this->epolleventArray.get()));
+	bzero(&this->epollevent, sizeof(this->epollevent));
+	//初始化线程池
+	pool.reset(new CThreadPool());
+	taskFctory = CTaskFactory::getInstance();
+}
+
+CEpollServer::~CEpollServer()
+{
+}
+
+void CEpollServer::work()
+{
+	int acceptfd = 0;
+	int res = 0;
+	while (1) {
+		cout << "epoll wait ------ epoll开始等待事件发生....." << endl;
+		//3.阻塞等待事件发生，一旦发生事件则从epoll红黑树中将fd取出，保存到epolleventArray中
+		//返回值epollWaitNum 是真实取到的发生事件的fd的个数,maxEvents为数组最大长度，也就是最大能同时监听的事件数量
+		epollWaitNum = epoll_wait(epollfd, epolleventArray.get(), maxEvents, -1);
+		if (epollWaitNum < 0) {
+			perror("epoll_wait err");
+			return;
+		}
+		//4.利用循环遍历已经发生了事件的fd，对每一个fd进行相应的处理
+		for (int i = 0; i < epollWaitNum; i++) {
+			//如果是socketfd代表客户端来连接
+			if (epolleventArray[i].data.fd == socketfd) {
+				//acceptfd 文件描述符代表连接成功客户端
+				//accept阻塞式函数一直等待客户端来连接
+				acceptfd = accept(socketfd, NULL, NULL);
+				cout << "socketfd事件发生，服务器监听到客户端上线acceptfd=" << acceptfd << endl;
+				//5.如果是客户端来连接那么，连接成功的acceptfd也要添加到epoll中保存
+				// 设置非阻塞模式 - ET模式必须的!
+				int flags = fcntl(acceptfd, F_GETFL, 0);
+				fcntl(acceptfd, F_SETFL, flags | O_NONBLOCK);
+				epollControl(acceptfd, EPOLL_CTL_ADD, 2);
+			}
+			//客户端下线或者客户端发来报文
+			else if (epolleventArray[i].events & EPOLLIN) {
+				handleClientData2(epolleventArray[i].data.fd);
+			}
+			else {
+				cout << "预料之外的事件类型" << endl;
+			}
+		}
+	}
+}
+
+CThreadPool* CEpollServer::getPool() const
+{
+	return this->pool.get();
+}
+
+void CEpollServer::closeClient(int clientFd)
+{
+	epollControl(clientFd, EPOLL_CTL_DEL, 2);
+	close(clientFd);
+	//connections.erase(clientFd);
+	cout << "关闭客户端连接: " << clientFd << endl;
+}
+
+void CEpollServer::epollControl(int fd, int op, int type)
+{
+	bzero(&epollevent, sizeof(epollevent));
+	epollevent.data.fd = fd;
+	if (type == 1) {
+		//水平触发LT
+		epollevent.events = EPOLL_EVENTS::EPOLLIN;
+	}
+	else if (type == 2) {
+		//边缘触发ET
+		epollevent.events = EPOLL_EVENTS::EPOLLIN | EPOLL_EVENTS::EPOLLET;
+	}
+	epoll_ctl(epollfd, op, fd, &epollevent);
+}
+void CEpollServer::handleClientData(int clientFd)
+{
+	auto& conn = connections[clientFd]; // 获取连接状态
+	bool connectionClosed = false;
+	bool readError = false;
+
+	while (true) {
+		if (conn.state == READING_HEADER) {
+			// 1. 读取头部
+			ssize_t res = read(clientFd, &conn.header, sizeof(HEAD));
+
+			if (res == sizeof(HEAD)) {
+				// 验证头部字段的合理性
+				if (conn.header.bussinessLength <= 0 || conn.header.bussinessLength > MAX_BODY_LENGTH) {
+					cerr << "非法body长度: " << conn.header.bussinessLength << "，关闭连接" << endl;
+					closeClient(clientFd);
+					break;
+				}
+
+				if (conn.header.bussinessType < 1 || conn.header.bussinessType > MAX_BUSINESS_TYPE) {
+					cerr << "非法业务类型: " << conn.header.bussinessType << "，关闭连接" << endl;
+					closeClient(clientFd);
+					break;
+				}
+
+				// 准备读取主体
+				conn.bodyBuffer.resize(conn.header.bussinessLength);
+				conn.bytesRead = 0;
+				conn.state = READING_BODY;
+				cout << "开始读取主体，长度: " << conn.header.bussinessLength << endl;
+			}
+			else if (res == 0) {
+				connectionClosed = true;
+				break;
+			}
+			else if (res == -1) {
+				if (errno == EAGAIN || errno == EWOULDBLOCK) {
+					break; // 暂时无数据
+				}
+				else {
+					readError = true;
+					break;
+				}
+			}
+			else {
+				// 部分读取头部
+				cerr << "读取部分HEAD: " << res << "/" << sizeof(HEAD) << endl;
+				readError = true;
+				break;
+			}
+		}
+		else if (conn.state == READING_BODY) {
+			// 2. 读取主体
+			ssize_t n = read(clientFd, conn.bodyBuffer.data() + conn.bytesRead,
+				conn.header.bussinessLength - conn.bytesRead);
+
+			if (n > 0) {
+				conn.bytesRead += n;
+				cout << "读取主体: " << n << "字节，累计: " << conn.bytesRead
+					<< "/" << conn.header.bussinessLength << endl;
+
+				// 检查是否读取完整
+				if (conn.bytesRead == conn.header.bussinessLength) {
+					conn.state = PROCESSING;
+				}
+			}
+			else if (n == 0) {
+				connectionClosed = true;
+				break;
+			}
+			else if (n == -1) {
+				if (errno == EAGAIN || errno == EWOULDBLOCK) {
+					break; // 暂时无数据
+				}
+				else {
+					readError = true;
+					break;
+				}
+			}
+		}
+		else if (conn.state == PROCESSING) {
+			// 3. 处理完整请求
+			cout << "处理完整请求，类型: " << conn.header.bussinessType << endl;
+
+			// 验证CRC
+			uint32_t calculatedCRC = CTools::crc32(
+				reinterpret_cast<uint8_t*>(conn.bodyBuffer.data()),
+				conn.header.bussinessLength
+			);
+
+			if (calculatedCRC == conn.header.crc) {
+				cout << "CRC校验成功: " << calculatedCRC << endl;
+
+				// 创建任务（复制数据）
+				auto task = taskFctory->createTask(clientFd, conn.header.bussinessType,
+					conn.bodyBuffer.data(), conn.header.bussinessLength);
+				pool->pushTask(move(task));
+			}
+			else {
+				cout << "CRC校验失败: 预期=" << conn.header.crc
+					<< " 实际=" << calculatedCRC << endl;
+			}
+
+			// 重置状态，准备处理下一个请求
+			conn.state = READING_HEADER;
+			conn.bodyBuffer.clear();
+			conn.bytesRead = 0;
+		}
+
+		// 检查是否还有数据（ET模式可能需要处理多个请求）
+		if (connectionClosed || readError) break;
+	}
+
+	// 处理连接关闭或错误
+	if (connectionClosed || readError) {
+		closeClient(clientFd);
+		connections.erase(clientFd);
+	}
+}
+
+void CEpollServer::handleClientData2(int clientFd)
+{
+	//ET模式下要读该客户端缓冲区的所有内容!!!!!!!!必须循环读取直到EAGAIN
+	bool connectionClosed = false;
+	bool readError = false;
+	int res = 0;
+	while (true) {
+		HEAD head = { 0 };
+		char* buf = NULL;
+		//1.读请求头
+		res = read(clientFd, &head, sizeof(HEAD));//后续可改sizeof(HEAD)
+		if (res == sizeof(HEAD)) {
+			cout << "res == sizeof(HEAD)=" << res << endl;
+			cout << "head.bussinessLength=" << head.bussinessLength << endl;
+			cout << "head.bussinessType=" << head.bussinessType << endl;
+			//客户端发来请求
+			buf = new char[head.bussinessLength];
+			//2.读请求体
+			res = read(clientFd, buf, head.bussinessLength);
+			//3.验证请求体数据合法性
+			if (res == head.bussinessLength && CTools::crc32((uint8_t*)buf, head.bussinessLength) == head.crc && head.crc > 0) {
+				cout << "crc校验成功:" << head.crc << endl;
+				//任务创建器,请求体给到任务中
+				auto task = taskFctory->createTask(clientFd, head.bussinessType, buf, head.bussinessLength);
+				//任务给到线程池
+				pool->pushTask(move(task));
+			}
+			else {
+				//验证发现数据不合法1.长度小了 2.crc校验不通过
+				   //疑问？是否需要将此次clientFd缓冲区剩余的所有数据丢弃
+				cout << "crc校验失败head.crc" << head.crc << "!=" << CTools::crc32((uint8_t*)buf, head.bussinessLength) << endl;
+
+			}
+			delete[]buf;
+		}
+		else if (res == 0) {
+			// 客户端关闭连接
+			cout << "res == 0客户端关闭连接" << endl;
+			connectionClosed = true;
+
+			break;
+		}
+		else if (res == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
+			// EAGAIN或EWOULDBLOCK：非阻塞模式下暂时无数据，下次再试
+			// ET模式：暂时无数据，等待下次事件
+			cout << "res == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)" << endl;
+			break;
+		}
+		else {
+			// 其他错误
+			cout << "其他错误" << endl;
+			readError = true;
+			break;
+		}
+		// 检查是否还有数据（ET模式可能需要处理多个请求）
+		if (connectionClosed || readError) break;
+	}
+	// 处理连接关闭或错误
+	if (connectionClosed || readError) {
+		//没读到东西，客户端下线
+		closeClient(clientFd);
+	}
+}
+
