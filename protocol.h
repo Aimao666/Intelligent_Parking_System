@@ -5,7 +5,7 @@
 //业务类型,单数表示客服端->服务器，双数是服务器->客户端
 #include <iostream>
 using namespace std;
-const size_t MAX_BODY_LENGTH = 10 * 1024 * 1024; // 10MB
+const size_t MAX_BODY_LENGTH = 4 * 1024 * 1024; // 4MB
 const int MAX_BUSINESS_TYPE = 100; // 根据协议调整
 typedef struct head {
 	int bussinessType;//请求体业务类型
@@ -23,7 +23,7 @@ typedef struct CommonBack {
 //登录请求体1
 typedef struct LoginRequest {
 	char account[12];//登录用手机号
-	char pass[80];//登录用密码
+	char password[80];//登录用密码
 }LoginRequest;
 
 

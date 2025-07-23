@@ -236,7 +236,6 @@ void CEpollServer::handleClientData2(int clientFd)
 	int res = 0;
 	while (true) {
 		HEAD head = { 0 };
-		char* buf = NULL;
 		//1.读请求头
 		res = read(clientFd, &head, sizeof(HEAD));//后续可改sizeof(HEAD)
 		if (res == sizeof(HEAD)) {
@@ -244,14 +243,17 @@ void CEpollServer::handleClientData2(int clientFd)
 			cout << "head.bussinessLength=" << head.bussinessLength << endl;
 			cout << "head.bussinessType=" << head.bussinessType << endl;
 			//客户端发来请求
-			buf = new char[head.bussinessLength];
+			char buf[head.bussinessLength];
 			//2.读请求体
 			res = read(clientFd, buf, head.bussinessLength);
 			//3.验证请求体数据合法性
 			if (res == head.bussinessLength && CTools::crc32((uint8_t*)buf, head.bussinessLength) == head.crc && head.crc > 0) {
 				cout << "crc校验成功:" << head.crc << endl;
 				//任务创建器,请求体给到任务中
-				auto task = taskFctory->createTask(clientFd, head.bussinessType, buf, head.bussinessLength);
+				char headAndBody[sizeof(HEAD) + head.bussinessLength];
+				memcpy(headAndBody, &head, sizeof(HEAD));
+				memcpy(headAndBody + sizeof(HEAD), buf, head.bussinessLength);
+				auto task = taskFctory->createTask(clientFd, head.bussinessType, headAndBody, sizeof(headAndBody));
 				//任务给到线程池
 				pool->pushTask(move(task));
 			}
@@ -261,7 +263,6 @@ void CEpollServer::handleClientData2(int clientFd)
 				cout << "crc校验失败head.crc" << head.crc << "!=" << CTools::crc32((uint8_t*)buf, head.bussinessLength) << endl;
 
 			}
-			delete[]buf;
 		}
 		else if (res == 0) {
 			// 客户端关闭连接

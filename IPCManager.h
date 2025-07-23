@@ -20,7 +20,7 @@ public:
 
 	typedef struct msgbuffer {
 		long mtype;
-		char mtext[200];
+		char mtext[5];//只需要一个int表示哪个区域可读可写
 	}MSGBUF;
 	~IPCManager();
 	//创建共享内存
@@ -54,6 +54,9 @@ public:
 	int getMsgid()const;
 	key_t getMsgkey()const;
 
+	int getSingleBlockSize()const;
+	int getBlockSize()const;
+
 	//单例设计模式
 	static IPCManager* getInstance();
 private:
@@ -66,6 +69,8 @@ private:
 
 	key_t shmkey;//共享内存key
 	int shmid;//共享内存id
+	int blockSize;//共享内存的总大小，包括索引区
+	int singleBlockSize;//单块共享内存大小，不包括索引区
 
 	key_t msgkey;//消息队列key
 	int msgid;//消息队列id

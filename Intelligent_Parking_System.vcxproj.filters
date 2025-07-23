@@ -3,10 +3,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="CTools.cpp" />
-    <ClCompile Include="CBaseSocket.cpp" />
-    <ClCompile Include="CEpollServer.cpp" />
-    <ClCompile Include="CHostAddress.cpp" />
-    <ClCompile Include="CTcpServer.cpp" />
     <ClCompile Include="CThreadPool.cpp" />
     <ClCompile Include="CBaseTask.cpp">
       <Filter>task</Filter>
@@ -18,14 +14,21 @@
       <Filter>task</Filter>
     </ClCompile>
     <ClCompile Include="IPCManager.cpp" />
+    <ClCompile Include="CHostAddress.cpp">
+      <Filter>netserver</Filter>
+    </ClCompile>
+    <ClCompile Include="CTcpServer.cpp">
+      <Filter>netserver</Filter>
+    </ClCompile>
+    <ClCompile Include="CEpollServer.cpp">
+      <Filter>netserver</Filter>
+    </ClCompile>
+    <ClCompile Include="CBaseSocket.cpp">
+      <Filter>netserver</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CTools.h" />
-    <ClInclude Include="protocol.h" />
-    <ClInclude Include="CBaseSocket.h" />
-    <ClInclude Include="CEpollServer.h" />
-    <ClInclude Include="CHostAddress.h" />
-    <ClInclude Include="CTcpServer.h" />
     <ClInclude Include="CThreadPool.h" />
     <ClInclude Include="CBaseTask.h">
       <Filter>task</Filter>
@@ -37,10 +40,28 @@
       <Filter>task</Filter>
     </ClInclude>
     <ClInclude Include="IPCManager.h" />
+    <ClInclude Include="CHostAddress.h">
+      <Filter>netserver</Filter>
+    </ClInclude>
+    <ClInclude Include="CTcpServer.h">
+      <Filter>netserver</Filter>
+    </ClInclude>
+    <ClInclude Include="CEpollServer.h">
+      <Filter>netserver</Filter>
+    </ClInclude>
+    <ClInclude Include="CBaseSocket.h">
+      <Filter>netserver</Filter>
+    </ClInclude>
+    <ClInclude Include="protocol.h">
+      <Filter>netserver</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="task">
       <UniqueIdentifier>{b42fc615-1dbc-4dc8-a815-90743d3dfd9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="netserver">
+      <UniqueIdentifier>{a81f7c34-cbc6-4b63-a688-734cedb46128}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

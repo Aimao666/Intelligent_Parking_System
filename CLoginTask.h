@@ -1,5 +1,6 @@
 #pragma once
 #include "CBaseTask.h"
+#include "IPCManager.h"
 class CLoginTask :public CBaseTask
 {
 public:

@@ -43,6 +43,8 @@ IPCManager::~IPCManager()
 int IPCManager::initShm(key_t key, size_t size)
 {
     shmid = shmget((key_t)1001, size, IPC_CREAT | 0666);
+    blockSize = size;
+    singleBlockSize = (size - sizeof(int) * nums_sems) / nums_sems;
     if (shmid < 0) {
         perror("shmget err");
     }
@@ -160,6 +162,16 @@ int IPCManager::getMsgid() const
 key_t IPCManager::getMsgkey() const
 {
     return msgkey;
+}
+
+int IPCManager::getSingleBlockSize() const
+{
+    return singleBlockSize;
+}
+
+int IPCManager::getBlockSize() const
+{
+    return blockSize;
 }
 
 int IPCManager::getNums_sems() const
