@@ -49,6 +49,11 @@ private:
 	//任务工厂
 	CTaskFactory* taskFctory;
 
+	//单独的线程去监听消息队列的消息
+	pthread_t msgrcvThread;
+	//线程执行函数
+	static void* msgrcvThread_function(void* arg);
+
 	enum ConnectionState {
 		READING_HEADER,   // 正在读取头部
 		READING_BODY,     // 正在读取主体

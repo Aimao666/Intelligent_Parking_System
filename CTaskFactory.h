@@ -5,6 +5,7 @@
 #include "CLoginTask.h"
 #include "RegisterTask.h"
 #include "SendCodeTask.h"
+#include "CCommonBackTask.h"
 using namespace std;
 class CTaskFactory
 {

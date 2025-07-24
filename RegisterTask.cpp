@@ -18,6 +18,8 @@ void RegisterTask::work()
 	}
 	//数据解析
 	HEAD head;
+	//拿crc码存一下fd，因为进来的时候已经校验过了，这个字段暂时没啥用
+	head.crc = this->clientFd;
 	RegisterRequest request;
 	memcpy(&head, taskData, sizeof(HEAD));
 	memcpy(&request, taskData + sizeof(HEAD), head.bussinessLength);
@@ -30,7 +32,7 @@ void RegisterTask::work()
 		//校验一致通过
 		//数据放到共享内存
 		if (it->second == request.code) {
-			saveData();
+			IPCManager::getInstance()->saveData(this->taskData,this->dataLen,1);
 		}
 	}
 	else {
@@ -41,8 +43,9 @@ void RegisterTask::work()
 		backHead.bussinessType = 6;
 		backBody.flag = 0;
 		sprintf(backBody.message, "%s%s", request.account,"验证码校验不通过");
-		strcpy(backBody.message, "验证码校验不通过");
 		char buf[sizeof(HEAD) + sizeof(CommonBack)];
+		//返回包计算crc校验码
+		backHead.crc = CTools::crc32((uint8_t*)&backBody, sizeof(CommonBack));
 		memcpy(buf, &backHead, sizeof(HEAD));
 		memcpy(buf + sizeof(HEAD), &backBody, sizeof(CommonBack));
 		//校验不通过，未知原因，因此打印一下手机号-验证码map

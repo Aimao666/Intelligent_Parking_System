@@ -25,6 +25,7 @@ typedef struct LoginRequest {
 	char account[12];//登录用手机号
 	char password[80];//登录用密码
 }LoginRequest;
+//登录返回2
 
 
 //获取验证码请求体3

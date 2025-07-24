@@ -45,8 +45,10 @@ void SendCodeTask::work()
 	}
 	//准备写入缓冲区
 	char buf[sizeof(HEAD) + sizeof(CommonBack)];
+	//返回包计算crc校验码
+	backHead.crc = CTools::crc32((uint8_t*)&backBody, sizeof(CommonBack));
 	memcpy(buf, &backHead, sizeof(HEAD));
-	memcpy(buf + sizeof(HEAD), &backBody, sizeof(CommonBack));
+	memcpy(buf + sizeof(HEAD), &backBody, sizeof(backBody));
 	if (write(clientFd, buf, sizeof(buf)) == -1) {
 		perror("发送验证码返回体 write err:");
 	}

@@ -78,6 +78,7 @@
   <ItemGroup>
     <ClCompile Include="CBaseSocket.cpp" />
     <ClCompile Include="CBaseTask.cpp" />
+    <ClCompile Include="CCommonBackTask.cpp" />
     <ClCompile Include="CEpollServer.cpp" />
     <ClCompile Include="CHostAddress.cpp" />
     <ClCompile Include="CLoginTask.cpp" />
@@ -89,12 +90,14 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="IPCManager.cpp" />
     <ClCompile Include="MessageCodeSender.cpp" />
+    <ClCompile Include="RrConfig.cpp" />
     <ClCompile Include="RegisterTask.cpp" />
     <ClCompile Include="SendCodeTask.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBaseSocket.h" />
     <ClInclude Include="CBaseTask.h" />
+    <ClInclude Include="CCommonBackTask.h" />
     <ClInclude Include="CEpollServer.h" />
     <ClInclude Include="CHostAddress.h" />
     <ClInclude Include="CLoginTask.h" />
@@ -106,6 +109,7 @@
     <ClInclude Include="MessageCodeSender.h" />
     <ClInclude Include="protocol.h" />
     <ClInclude Include="IPCManager.h" />
+    <ClInclude Include="RrConfig.h" />
     <ClInclude Include="RegisterTask.h" />
     <ClInclude Include="SendCodeTask.h" />
   </ItemGroup>

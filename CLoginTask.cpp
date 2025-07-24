@@ -18,10 +18,12 @@ void CLoginTask::work()
 	}
 	//数据解析
 	HEAD head;
+	//拿crc码存一下fd，因为进来的时候已经校验过了，这个字段暂时没啥用
+	head.crc = this->clientFd;
 	LoginRequest loginRequest;
 	memcpy(&head, taskData, sizeof(HEAD));
 	memcpy(&loginRequest, taskData + sizeof(HEAD), head.bussinessLength);
 	cout << "登录请求-账号:" << loginRequest.account <<"	密码:" << loginRequest.password << endl;
 	//数据放到共享内存
-	saveData();
+	IPCManager::getInstance()->saveData(taskData, dataLen, 1);
 }

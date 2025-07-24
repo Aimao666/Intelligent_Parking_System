@@ -27,9 +27,6 @@
     <ClCompile Include="SendCodeTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
-    <ClCompile Include="RegisterTask.cpp">
-      <Filter>task</Filter>
-    </ClCompile>
     <ClCompile Include="CTools.cpp">
       <Filter>tools</Filter>
     </ClCompile>
@@ -42,15 +39,21 @@
     <ClCompile Include="MessageCodeSender.cpp">
       <Filter>tools</Filter>
     </ClCompile>
+    <ClCompile Include="RegisterTask.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
+    <ClCompile Include="RrConfig.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
+    <ClCompile Include="CCommonBackTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBaseTask.h">
       <Filter>task</Filter>
     </ClInclude>
     <ClInclude Include="CTaskFactory.h">
-      <Filter>task</Filter>
-    </ClInclude>
-    <ClInclude Include="CLoginTask.h">
       <Filter>task</Filter>
     </ClInclude>
     <ClInclude Include="CHostAddress.h">
@@ -86,6 +89,15 @@
     </ClInclude>
     <ClInclude Include="MessageCodeSender.h">
       <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="RrConfig.h">
+      <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="CCommonBackTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CLoginTask.h">
+      <Filter>task</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

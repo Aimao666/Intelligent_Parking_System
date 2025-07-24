@@ -6,10 +6,11 @@
 #include <sys/msg.h>
 #include <iostream>
 #include <pthread.h>
+#include <string.h>
 using namespace std;
 class IPCManager
 {
-public: 
+public:
 	// 添加全局索引信号量索引
 	static int INDEX_LOCK_SEM;
 	union semun {
@@ -33,7 +34,7 @@ public:
 	//创建信号量+赋值，IPC_EXCL避免后置服务器调用时覆盖前置对信号量的赋值
 	int initSem(key_t key, int nsems, int value);
 	/*
-	信号量初始化 
+	信号量初始化
 		semid为信号量id,不是key
 		sem_num对应信号量数组下标，表示要初始化哪个信号量
 		value这个信号量有多少个资源
@@ -44,6 +45,9 @@ public:
 	void sem_p(int semid, int sem_index);
 	//信号量V操作 +1 参数semid:对应信号量id 参数sem_index:你要做-1操作的信号量数组下标元素
 	void sem_v(int semid, int sem_index);
+
+	//数据写入到共享内存,mtype表示消息队列消息类型,1表示从前置到后置，2表示从后置到前置
+	int saveData(char* data, size_t len, int mtype);
 
 	int getNums_sems()const;
 
@@ -67,10 +71,10 @@ private:
 	static pthread_mutex_t mutex;
 	key_t semkey;//信号量key
 	int semid;//信号量id
-	int nums_sems;//信号量数组长度
 
 	key_t shmkey;//共享内存key
 	int shmid;//共享内存id
+	int nums_sems;//逻辑共享内存块数
 	int blockSize;//共享内存的总大小，包括索引区
 	int singleBlockSize;//单块共享内存大小，不包括索引区
 
