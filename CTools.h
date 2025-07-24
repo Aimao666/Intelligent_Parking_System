@@ -15,9 +15,19 @@ public:
 	static string itos(int num, int minlen = 1);
 	//CRC-32计算函数
 	static uint32_t crc32(const uint8_t* data, size_t length);
+
+	//URL编码
+	static std::string urlEncode(const std::string& str);
+	//URL解码
+	static std::string urlDecode(const std::string& str);
+
+	//生成验证码
+	static std::string generateCode(int length);
 private:
 	CTools();
 	~CTools();
-	
+
+	// 保留字符列表（RFC 3986）
+	static const std::string SAFE_CHARS;
 };
 

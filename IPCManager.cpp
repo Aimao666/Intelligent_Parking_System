@@ -1,6 +1,7 @@
 #include "IPCManager.h"
 
-IPCManager* IPCManager::instance=nullptr;
+int IPCManager::INDEX_LOCK_SEM ;
+IPCManager* IPCManager::instance = nullptr;
 pthread_mutex_t IPCManager::mutex;
 IPCManager* IPCManager::getInstance()
 {
@@ -36,27 +37,48 @@ IPCManager::~IPCManager()
         for (int i = 0; i < nums_sems; i++) {
             semctl(semid, i, IPC_RMID);//信号量删除
         }
-    
+
     }
 }
 
 int IPCManager::initShm(key_t key, size_t size)
 {
-    shmid = shmget((key_t)1001, size, IPC_CREAT | 0666);
+    shmkey = key;
+    shmid = shmget(key, size, IPC_CREAT | IPC_EXCL | 0777);
     blockSize = size;
     singleBlockSize = (size - sizeof(int) * nums_sems) / nums_sems;
-    if (shmid < 0) {
+    if (shmid >= 0) {
+        // 创建成功：当前进程是第一个创建
+        cout << "消息队列创建成功" << endl;
+    }
+    else if (errno == EEXIST) {
         perror("shmget err");
+        shmid = shmget(key, size, 0777);
+        cout << "共享内存已存在，直接使用" << endl;
+    }
+    else {
+        perror("shmget err:");
+        return -1;
     }
     return shmid;
 }
 
 int IPCManager::initMsg(key_t key)
 {
-    msgid = msgget(key, IPC_CREAT | 0666);
-    if (msgid < 0) {
+    msgkey = key;
+    msgid = msgget(key, IPC_CREAT | IPC_EXCL | 0777);
+    if (msgid >= 0) {
+        // 创建成功：当前进程是第一个创建
+        cout << "消息队列创建成功" << endl;
+    }
+    else if (errno == EEXIST) {
         perror("msgget err");
-        return 0;
+        msgid = msgget(key, 0777);
+        cout << "消息队列已存在，直接使用" << endl;
+    }
+    else {
+        perror("msgget err:");
+        return -1;
     }
     return msgid;
 }
@@ -66,12 +88,14 @@ int IPCManager::initSem(key_t key, int nsems, int value)
 {
     //信号量创建 key就是创建信号key，nums_sems是信号量数组长度，常用1，长度大于1表示有多个不同的信号量,IPC_EXCL- 排他
     //返回值-1表示失败，>0表示semid
-    int semid = semget(key, nums_sems, IPC_CREAT | IPC_EXCL | 0666);
+    this->semkey = key;
+    this->nums_sems = nsems;
+    //最后一个信号量是代表所有索引区的信号量，前面的信号量对应内存块区
+    this->semid = semget(key, nsems + 1, IPC_CREAT | IPC_EXCL | 0777);
+    INDEX_LOCK_SEM = nsems;//全局索引信号量索引，下标为逻辑内存块个数
     if (semid >= 0) {
-        this->semkey = key;
-        this->nums_sems = nums_sems;
         // 创建成功：当前进程是第一个初始化者
-        for (int i = 0; i < nsems; i++) {
+        for (int i = 0; i < nsems + 1; i++) {
             sem_setVal(semid, i, 1); // 安全初始化
         }
         cout << "信号量创建成功" << endl;

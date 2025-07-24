@@ -5,8 +5,8 @@
 //业务类型,单数表示客服端->服务器，双数是服务器->客户端
 #include <iostream>
 using namespace std;
-const size_t MAX_BODY_LENGTH = 4 * 1024 * 1024; // 4MB
-const int MAX_BUSINESS_TYPE = 100; // 根据协议调整
+const size_t MAX_BODY_LENGTH = 5 * 1024; // 5kB
+const int MAX_BUSINESS_TYPE = 30; // 根据协议调整
 typedef struct head {
 	int bussinessType;//请求体业务类型
 	int bussinessLength;//请求体字节长度

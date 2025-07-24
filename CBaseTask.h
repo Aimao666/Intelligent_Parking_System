@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <iostream>
 #include "protocol.h"
+#include "IPCManager.h"
 using namespace std;
 class CBaseTask
 {
@@ -16,6 +17,8 @@ public:
 	char* getTaskData() const;
 
 	size_t getDataLen() const;
+	//保存数据到共享内存
+	void saveData();
 protected:
 	int clientFd;     // 客户端文件描述符
 	char* taskData;   // 原始请求数据（包含请求头+请求体）

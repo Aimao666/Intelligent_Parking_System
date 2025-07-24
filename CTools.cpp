@@ -1,5 +1,8 @@
 #include "CTools.h"
-
+const std::string CTools::SAFE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+"abcdefghijklmnopqrstuvwxyz"
+"0123456789"
+"-_.~";
 CTools::CTools()
 {
 }
@@ -40,10 +43,71 @@ uint32_t CTools::crc32(const uint8_t* data, size_t length)
 				crc = (crc >> 1) ^ polynomial;
 			}
 			else {
-				crc >> 1;
+				crc >>= 1;
 			}
 		}
 
 	}
 	return crc ^ 0xFFFFFFFF;
+}
+
+std::string CTools::urlEncode(const std::string& str) {
+    std::ostringstream encoded;
+    encoded.fill('0');
+    encoded << std::hex << std::uppercase;
+
+    for (char c : str) {
+        // 检查是否是安全字符
+        if (SAFE_CHARS.find(c) != std::string::npos) {
+            encoded << c;
+        }
+        // 处理空格（特殊规则：编码为+或%20，这里采用%20更通用）
+        else if (c == ' ') {
+            encoded << "%20";
+        }
+        // 其他字符：百分号编码
+        else {
+            encoded << '%' << std::setw(2) << static_cast<int>(static_cast<unsigned char>(c));
+        }
+    }
+
+    return encoded.str();
+}
+
+std::string CTools::urlDecode(const std::string& str) {
+    std::ostringstream decoded;
+    for (size_t i = 0; i < str.length(); i++) {
+        if (str[i] == '%') {
+            // 检查是否有足够的字符用于解码
+            if (i + 2 < str.length()) {
+                int value;
+                std::istringstream hexStream(str.substr(i + 1, 2));
+                hexStream >> std::hex >> value;
+                decoded << static_cast<char>(value);
+                i += 2; // 跳过已处理的两位十六进制数
+            }
+            else {
+                // 无效编码，保留原始字符
+                decoded << str[i];
+            }
+        }
+        // 处理空格特殊情况（+号表示空格）
+        else if (str[i] == '+') {
+            decoded << ' ';
+        }
+        else {
+            decoded << str[i];
+        }
+    }
+    return decoded.str();
+}
+std::string CTools::generateCode(int length) {
+    static const char digits[] = "0123456789";
+    std::string code;
+
+    for (int i = 0; i < length; ++i) {
+        code += digits[rand() % 10];
+    }
+
+    return code;
 }

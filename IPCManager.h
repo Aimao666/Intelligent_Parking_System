@@ -9,7 +9,9 @@
 using namespace std;
 class IPCManager
 {
-public:
+public: 
+	// 添加全局索引信号量索引
+	static int INDEX_LOCK_SEM;
 	union semun {
 		int              val;    /* Value for SETVAL */
 		struct semid_ds* buf;    /* Buffer for IPC_STAT, IPC_SET */

@@ -19,9 +19,20 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 {
 	switch (bussinessType)
 	{
-	case 1: 
+	case 1://登录
 	{	
 		unique_ptr<CLoginTask> task(new CLoginTask(clientFd, data, length));
+		return task;
+	}
+
+	case 3://验证码
+	{
+		unique_ptr<SendCodeTask> task(new SendCodeTask(clientFd, data, length));
+		return task;
+	}
+	case 5://注册
+	{
+		unique_ptr<RegisterTask> task(new RegisterTask(clientFd, data, length));
 		return task;
 	}
 	default:

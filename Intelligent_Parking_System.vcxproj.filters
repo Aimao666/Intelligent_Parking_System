@@ -2,8 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="CTools.cpp" />
-    <ClCompile Include="CThreadPool.cpp" />
     <ClCompile Include="CBaseTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
@@ -13,7 +11,6 @@
     <ClCompile Include="CLoginTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
-    <ClCompile Include="IPCManager.cpp" />
     <ClCompile Include="CHostAddress.cpp">
       <Filter>netserver</Filter>
     </ClCompile>
@@ -26,10 +23,27 @@
     <ClCompile Include="CBaseSocket.cpp">
       <Filter>netserver</Filter>
     </ClCompile>
+    <ClCompile Include="DataManager.cpp" />
+    <ClCompile Include="SendCodeTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="RegisterTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CTools.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
+    <ClCompile Include="CThreadPool.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
+    <ClCompile Include="IPCManager.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
+    <ClCompile Include="MessageCodeSender.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CTools.h" />
-    <ClInclude Include="CThreadPool.h" />
     <ClInclude Include="CBaseTask.h">
       <Filter>task</Filter>
     </ClInclude>
@@ -39,7 +53,6 @@
     <ClInclude Include="CLoginTask.h">
       <Filter>task</Filter>
     </ClInclude>
-    <ClInclude Include="IPCManager.h" />
     <ClInclude Include="CHostAddress.h">
       <Filter>netserver</Filter>
     </ClInclude>
@@ -55,6 +68,25 @@
     <ClInclude Include="protocol.h">
       <Filter>netserver</Filter>
     </ClInclude>
+    <ClInclude Include="DataManager.h" />
+    <ClInclude Include="RegisterTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="SendCodeTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CTools.h">
+      <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="CThreadPool.h">
+      <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="IPCManager.h">
+      <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="MessageCodeSender.h">
+      <Filter>tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="task">
@@ -62,6 +94,9 @@
     </Filter>
     <Filter Include="netserver">
       <UniqueIdentifier>{a81f7c34-cbc6-4b63-a688-734cedb46128}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tools">
+      <UniqueIdentifier>{f272e5a5-3231-4067-b58b-f01c67eb42f9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

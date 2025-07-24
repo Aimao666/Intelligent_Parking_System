@@ -4,7 +4,10 @@ CEpollServer::CEpollServer(unsigned short port, int maxEvents)
 {
 	//搭建Tcp网络通道
 	socketServer.reset(new CTcpServer(port));
-	socketServer->work();
+	if (socketServer->work() == 0) {
+		cout << "网络连接失败，请检查端口是否被占用" << endl;
+		exit(0);
+	}
 	socketfd = socketServer->getSocketfd();
 	epollfd = 0;
 	this->maxEvents = maxEvents;
@@ -47,6 +50,10 @@ void CEpollServer::work()
 {
 	int acceptfd = 0;
 	int res = 0;
+	if (socketfd == -1) {
+		cout << "网络连接失败" << endl;
+		return;
+	}
 	while (1) {
 		cout << "epoll wait ------ epoll开始等待事件发生....." << endl;
 		//3.阻塞等待事件发生，一旦发生事件则从epoll红黑树中将fd取出，保存到epolleventArray中
@@ -63,6 +70,10 @@ void CEpollServer::work()
 				//acceptfd 文件描述符代表连接成功客户端
 				//accept阻塞式函数一直等待客户端来连接
 				acceptfd = accept(socketfd, NULL, NULL);
+				if (acceptfd < 0) {
+					perror("accept err");
+					cout << "异常客户端fd，强制结束" << endl;
+				}
 				cout << "socketfd事件发生，服务器监听到客户端上线acceptfd=" << acceptfd << endl;
 				//5.如果是客户端来连接那么，连接成功的acceptfd也要添加到epoll中保存
 				// 设置非阻塞模式 - ET模式必须的!
