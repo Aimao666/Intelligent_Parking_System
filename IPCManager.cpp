@@ -159,7 +159,9 @@ void IPCManager::sem_v(int semid, int sem_index)
 }
 
 
-//数据写入到共享内存,mtype表示消息队列消息类型,1表示从前置到后置，2表示从后置到前置
+//数据写入到共享内存,
+//mtype表示消息队列消息类型,1表示从前置到后置，2表示从后置到前置
+//mtype也表示共享内存索引值，1表示后置可读，2表示前置可读
 int IPCManager::saveData(char* data, size_t len, int mtype)
 {
     //数据放到共享内存
@@ -182,7 +184,7 @@ int IPCManager::saveData(char* data, size_t len, int mtype)
             targetIndex = i;
             //cout << "遍历索引区，找到可写索引" << targetIndex << endl;
             //将目标索引 的值改为后置可读，注意虽然后置可读，但是因为没发消息队列所以理论上后置还不可能读这里
-            indexArr[i] = 1;
+            indexArr[i] = mtype;
             memcpy((char*)shmaddr + sizeof(int) * i, &indexArr[i], sizeof(int));
             break;
         }

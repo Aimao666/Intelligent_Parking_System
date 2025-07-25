@@ -18,8 +18,6 @@ void RegisterTask::work()
 	}
 	//数据解析
 	HEAD head;
-	//拿crc码存一下fd，因为进来的时候已经校验过了，这个字段暂时没啥用
-	head.crc = this->clientFd;
 	RegisterRequest request;
 	memcpy(&head, taskData, sizeof(HEAD));
 	memcpy(&request, taskData + sizeof(HEAD), head.bussinessLength);
@@ -32,6 +30,10 @@ void RegisterTask::work()
 		//校验一致通过
 		//数据放到共享内存
 		if (it->second == request.code) {
+			//拿crc码存一下fd，因为进来的时候已经校验过了，这个字段暂时没啥用
+			head.crc = this->clientFd;
+			//head修改了，需要保存到缓冲区，然后写入共享内存
+			memcpy(taskData, &head, sizeof(HEAD));
 			IPCManager::getInstance()->saveData(this->taskData,this->dataLen,1);
 		}
 	}

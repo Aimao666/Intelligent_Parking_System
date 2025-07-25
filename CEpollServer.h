@@ -9,6 +9,7 @@
 #include "CTools.h"
 #include <fcntl.h>
 #include <unordered_map>
+#include "CReadShmTask.h"
 using namespace std;
 #define EPOLL_SIZE 5
 #define DEFAULT_EVENTS_NUM 5

@@ -30,6 +30,7 @@ void CCommonBackTask::work()
 	//发送给客户端
 	if (write(clientFd, buf, sizeof(buf)) == -1) {
 		perror("CCommonBackTask write err:");
+		cout << "clientFd=" << clientFd << endl;
 	}
 	else {
 		cout << "CCommonBackTask-发送成功" << endl;

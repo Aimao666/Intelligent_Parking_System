@@ -46,7 +46,9 @@ public:
 	//信号量V操作 +1 参数semid:对应信号量id 参数sem_index:你要做-1操作的信号量数组下标元素
 	void sem_v(int semid, int sem_index);
 
-	//数据写入到共享内存,mtype表示消息队列消息类型,1表示从前置到后置，2表示从后置到前置
+	//数据写入到共享内存,
+	//mtype表示消息队列消息类型,1表示从前置到后置，2表示从后置到前置
+	//mtype也表示共享内存索引值，1表示后置可读，2表示前置可读
 	int saveData(char* data, size_t len, int mtype);
 
 	int getNums_sems()const;

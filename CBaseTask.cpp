@@ -7,8 +7,16 @@ CBaseTask::CBaseTask(int fd, char* data, size_t len)
         memcpy(taskData, data, len);
     }
     else {
+        dataLen = 0;
         taskData = nullptr;
     }
+}
+
+CBaseTask::CBaseTask(int shmIndex)
+{
+    this->shmIndex = shmIndex;
+    dataLen = 0;
+    taskData = nullptr;
 }
 CBaseTask::~CBaseTask()
 {

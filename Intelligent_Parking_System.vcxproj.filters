@@ -39,13 +39,16 @@
     <ClCompile Include="MessageCodeSender.cpp">
       <Filter>tools</Filter>
     </ClCompile>
-    <ClCompile Include="RegisterTask.cpp">
-      <Filter>tools</Filter>
-    </ClCompile>
     <ClCompile Include="RrConfig.cpp">
       <Filter>tools</Filter>
     </ClCompile>
     <ClCompile Include="CCommonBackTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CReadShmTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="RegisterTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
   </ItemGroup>
@@ -97,6 +100,9 @@
       <Filter>task</Filter>
     </ClInclude>
     <ClInclude Include="CLoginTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CReadShmTask.h">
       <Filter>task</Filter>
     </ClInclude>
   </ItemGroup>

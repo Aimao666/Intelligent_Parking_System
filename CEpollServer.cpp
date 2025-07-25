@@ -40,10 +40,13 @@ CEpollServer::CEpollServer(unsigned short port, int maxEvents)
 	//初始化线程池
 	pool.reset(new CThreadPool());
 	taskFctory = CTaskFactory::getInstance();
+	pthread_create(&msgrcvThread, NULL, CEpollServer::msgrcvThread_function, this);
 }
 
 CEpollServer::~CEpollServer()
 {
+	//等待消息队列监听线程回收
+	pthread_join(this->msgrcvThread, nullptr);
 }
 
 void CEpollServer::work()
@@ -132,13 +135,13 @@ void* CEpollServer::msgrcvThread_function(void* arg)
 		cout << "ipc分配失败" << endl;
 		return nullptr;
 	}
-	void* shmaddr = shmat(shmid, NULL, 0);//用于接收共享内存块起始地址
-	if (shmaddr == (void*)-1) {
-		perror("shmat 失败");
-		cout << "无法连接共享内存，程序退出" << endl;
-		return nullptr;
-	}
-	int indexArr[block_num];//索引区
+	//void* shmaddr = shmat(shmid, NULL, 0);//用于接收共享内存块起始地址
+	//if (shmaddr == (void*)-1) {
+	//	perror("shmat 失败");
+	//	cout << "无法连接共享内存，程序退出" << endl;
+	//	return nullptr;
+	//}
+	//int indexArr[block_num];//索引区
 	while (true) {
 		IPCManager::MSGBUF buffer;
 		buffer.mtype = 2;
@@ -146,7 +149,7 @@ void* CEpollServer::msgrcvThread_function(void* arg)
 			perror("msgrcv err");
 			continue;
 		}
-		cout << "接收到消息队列消息:" << buffer.mtext << endl;
+		cout << "============接收到消息队列消息:" << buffer.mtext << endl;
 		int index = atoi(buffer.mtext);//知道索引区可写的下标
 		// 检查索引范围
 		if (index < 0 || index >= block_num) {
@@ -154,23 +157,26 @@ void* CEpollServer::msgrcvThread_function(void* arg)
 			continue;
 		}
 		//创建读取共享内存的任务，让线程池线程执行读取共享内存的任务
-		ipc->sem_p(semid, index);
-		memcpy(indexArr, shmaddr, sizeof(indexArr));
-		//判断目标区域是否真的可读:0可写，1后置可读,2前置可读
-		if (indexArr[index] == 2) {
-			cout << "目标区域可读" << endl;
-			//拷贝数据
-			char shmBuffer[MAX_BODY_LENGTH];//实际内存块
-			memcpy(shmBuffer, (char*)shmaddr + sizeof(int) * block_num + index * MAX_BODY_LENGTH, MAX_BODY_LENGTH);
-			HEAD head;
-			memcpy(&head, shmBuffer, sizeof(HEAD));
-			int bodyLen = head.bussinessLength;
-			auto task = CTaskFactory::getInstance()->createTask(head.crc, head.bussinessType, shmBuffer, sizeof(HEAD) + head.bussinessLength);
-			//任务给到线程池
-			server->pool->pushTask(move(task));
-		}
-		ipc->sem_v(semid, index);
+
+		server->pool->pushTask(unique_ptr<CReadShmTask>(new CReadShmTask(index, server->pool.get())));
+		//ipc->sem_p(semid, index);
+		//memcpy(indexArr, shmaddr, sizeof(indexArr));
+		////判断目标区域是否真的可读:0可写，1后置可读,2前置可读
+		//if (indexArr[index] == 2) {
+		//	cout << "目标区域可读" << endl;
+		//	//拷贝数据
+		//	char shmBuffer[MAX_BODY_LENGTH];//实际内存块
+		//	memcpy(shmBuffer, (char*)shmaddr + sizeof(int) * block_num + index * MAX_BODY_LENGTH, MAX_BODY_LENGTH);
+		//	HEAD head;
+		//	memcpy(&head, shmBuffer, sizeof(HEAD));
+		//	int bodyLen = head.bussinessLength;
+		//	auto task = CTaskFactory::getInstance()->createTask(head.crc, head.bussinessType, shmBuffer, sizeof(HEAD) + head.bussinessLength);
+		//	//任务给到线程池
+		//	server->pool->pushTask(move(task));
+		//}
+		//ipc->sem_v(semid, index);
 	}
+	//shmdt(shmaddr);
 	return nullptr;
 }
 void CEpollServer::handleClientData(int clientFd)
@@ -318,6 +324,7 @@ void CEpollServer::handleClientData2(int clientFd)
 				char headAndBody[sizeof(HEAD) + head.bussinessLength];
 				memcpy(headAndBody, &head, sizeof(HEAD));
 				memcpy(headAndBody + sizeof(HEAD), buf, head.bussinessLength);
+				//cout << "Epoll:clientFd=" << clientFd << endl;
 				auto task = taskFctory->createTask(clientFd, head.bussinessType, headAndBody, sizeof(headAndBody));
 				//任务给到线程池
 				pool->pushTask(move(task));
