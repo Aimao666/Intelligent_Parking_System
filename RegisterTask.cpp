@@ -5,13 +5,9 @@ RegisterTask::RegisterTask(int fd, char* data, size_t len)
 {
 }
 
-RegisterTask::~RegisterTask()
-{
-}
-
 void RegisterTask::work()
 {
-	cout << this->taskData << "正在执行" << endl;
+	cout << "RegisterTask正在执行" << endl;
 	if (this->dataLen <= 0) {
 		cout << "dataLen数据长度小于0，异常" << endl;
 		return;

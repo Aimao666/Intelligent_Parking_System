@@ -1,11 +1,11 @@
 #pragma once
 #include "CBaseTask.h"
-class CCommonBackTask
-	:public CBaseTask
+class CSendBackTask 
+	: public CBaseTask
 {
 public:
-	CCommonBackTask(int fd, char* data, size_t len);
-	~CCommonBackTask();
+	CSendBackTask(int fd, char* data, size_t len);
+	~CSendBackTask() = default;
 private:
 
 	// 通过 CBaseTask 继承

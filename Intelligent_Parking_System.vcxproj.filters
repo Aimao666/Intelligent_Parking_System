@@ -17,9 +17,6 @@
     <ClCompile Include="CTcpServer.cpp">
       <Filter>netserver</Filter>
     </ClCompile>
-    <ClCompile Include="CEpollServer.cpp">
-      <Filter>netserver</Filter>
-    </ClCompile>
     <ClCompile Include="CBaseSocket.cpp">
       <Filter>netserver</Filter>
     </ClCompile>
@@ -42,13 +39,22 @@
     <ClCompile Include="RrConfig.cpp">
       <Filter>tools</Filter>
     </ClCompile>
-    <ClCompile Include="CCommonBackTask.cpp">
-      <Filter>task</Filter>
-    </ClCompile>
     <ClCompile Include="CReadShmTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
     <ClCompile Include="RegisterTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CFileUploadTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CEpollServer.cpp">
+      <Filter>netserver</Filter>
+    </ClCompile>
+    <ClCompile Include="CFileCheckTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CSendBackTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
   </ItemGroup>
@@ -96,13 +102,19 @@
     <ClInclude Include="RrConfig.h">
       <Filter>tools</Filter>
     </ClInclude>
-    <ClInclude Include="CCommonBackTask.h">
-      <Filter>task</Filter>
-    </ClInclude>
     <ClInclude Include="CLoginTask.h">
       <Filter>task</Filter>
     </ClInclude>
     <ClInclude Include="CReadShmTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CFileUploadTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CFileCheckTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CSendBackTask.h">
       <Filter>task</Filter>
     </ClInclude>
   </ItemGroup>

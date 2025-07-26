@@ -12,7 +12,9 @@ public:
 	CBaseTask(int fd, char* data, size_t len);
 	CBaseTask(int shmIndex);
 	virtual~CBaseTask();
-	virtual void work()=0;
+
+	//实现了基本的将业务数据存放到共享内存
+	virtual void work();
 
 	int getClientFd() const;
 

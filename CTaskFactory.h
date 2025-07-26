@@ -5,12 +5,15 @@
 #include "CLoginTask.h"
 #include "RegisterTask.h"
 #include "SendCodeTask.h"
-#include "CCommonBackTask.h"
+#include "CFileUploadTask.h"
+#include "CFileCheckTask.h"
+#include "CSendBackTask.h"
+
 using namespace std;
 class CTaskFactory
 {
 public:
-	~CTaskFactory();
+	~CTaskFactory() = default;
 	static CTaskFactory* getInstance();
 	unique_ptr<CBaseTask> createTask(int clientFd, int bussinessType, char* data, size_t length);
 private:

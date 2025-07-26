@@ -3,6 +3,10 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <string>
+#include <vector>
 using namespace std;
 class CTools
 {
@@ -23,9 +27,12 @@ public:
 
 	//生成验证码
 	static std::string generateCode(int length);
+
+	//递归的创建目录
+	static bool createDirectoryRecursive(const std::string& path, mode_t mode = 0777);
 private:
-	CTools();
-	~CTools();
+	CTools() = delete;
+	~CTools() = delete;
 
 	// 保留字符列表（RFC 3986）
 	static const std::string SAFE_CHARS;

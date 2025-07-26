@@ -3,13 +3,36 @@ const std::string CTools::SAFE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 "abcdefghijklmnopqrstuvwxyz"
 "0123456789"
 "-_.~";
-CTools::CTools()
+bool CTools::createDirectoryRecursive(const std::string& path, mode_t mode)
 {
+    size_t pos = 0;
+    std::string currentDir;
+
+    if (path[0] == '/') {
+        currentDir = "/";
+        pos = 1;
+    }
+
+    while (pos != std::string::npos) {
+        pos = path.find('/', pos);
+        currentDir = path.substr(0, pos);
+
+        if (!currentDir.empty()) {
+            if (mkdir(currentDir.c_str(), mode) != 0) {
+                if (errno != EEXIST) { // 忽略已存在的目录
+                    perror(("创建目录失败: " + currentDir).c_str());
+                    return false;
+                }
+            }
+        }
+
+        if (pos != std::string::npos) {
+            pos++;
+        }
+    }
+    return true;
 }
 
-CTools::~CTools()
-{
-}
 /*
 函数功能：int转string
 函数参数：int num,int minlen 最小长度，即如果转化出来的string的长度小于该长度则需要在前面自动补0

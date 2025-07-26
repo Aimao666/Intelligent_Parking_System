@@ -5,13 +5,9 @@ SendCodeTask::SendCodeTask(int fd, char* data, size_t len)
 {
 }
 
-SendCodeTask::~SendCodeTask()
-{
-}
-
 void SendCodeTask::work()
 {
-	cout << this->taskData << "正在执行" << endl;
+	cout << "SendCodeTask正在执行" << endl;
 	if (this->dataLen <= 0) {
 		cout << "请求体长度小于0，异常" << endl;
 		return;

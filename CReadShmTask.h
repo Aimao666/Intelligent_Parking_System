@@ -7,7 +7,7 @@ class CReadShmTask :
 {
 public:
     CReadShmTask(int shmIndex, CThreadPool* pool);
-    ~CReadShmTask();
+    ~CReadShmTask() = default;
 private:
     CThreadPool* pool;
 

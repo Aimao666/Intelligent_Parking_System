@@ -5,10 +5,6 @@ CReadShmTask::CReadShmTask(int shmIndex, CThreadPool* pool)
 {
 }
 
-CReadShmTask::~CReadShmTask()
-{
-}
-
 void CReadShmTask::work()
 {
     cout << "CReadShmTask正在执行" << endl;

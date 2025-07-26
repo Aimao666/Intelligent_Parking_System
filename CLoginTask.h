@@ -4,7 +4,7 @@ class CLoginTask :public CBaseTask
 {
 public:
 	CLoginTask(int fd, char* data, size_t len);
-	~CLoginTask();
+	~CLoginTask() = default;
 private:
 
 	// 通过 CBaseTask 继承

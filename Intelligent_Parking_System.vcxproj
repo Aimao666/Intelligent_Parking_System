@@ -78,11 +78,13 @@
   <ItemGroup>
     <ClCompile Include="CBaseSocket.cpp" />
     <ClCompile Include="CBaseTask.cpp" />
-    <ClCompile Include="CCommonBackTask.cpp" />
     <ClCompile Include="CEpollServer.cpp" />
+    <ClCompile Include="CFileCheckTask.cpp" />
+    <ClCompile Include="CFileUploadTask.cpp" />
     <ClCompile Include="CHostAddress.cpp" />
     <ClCompile Include="CLoginTask.cpp" />
     <ClCompile Include="CReadShmTask.cpp" />
+    <ClCompile Include="CSendBackTask.cpp" />
     <ClCompile Include="CTaskFactory.cpp" />
     <ClCompile Include="CTcpServer.cpp" />
     <ClCompile Include="CThreadPool.cpp" />
@@ -98,11 +100,13 @@
   <ItemGroup>
     <ClInclude Include="CBaseSocket.h" />
     <ClInclude Include="CBaseTask.h" />
-    <ClInclude Include="CCommonBackTask.h" />
     <ClInclude Include="CEpollServer.h" />
+    <ClInclude Include="CFileCheckTask.h" />
+    <ClInclude Include="CFileUploadTask.h" />
     <ClInclude Include="CHostAddress.h" />
     <ClInclude Include="CLoginTask.h" />
     <ClInclude Include="CReadShmTask.h" />
+    <ClInclude Include="CSendBackTask.h" />
     <ClInclude Include="CTaskFactory.h" />
     <ClInclude Include="CTcpServer.h" />
     <ClInclude Include="CThreadPool.h" />
