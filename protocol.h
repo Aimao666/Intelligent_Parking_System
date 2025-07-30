@@ -1,12 +1,12 @@
 #pragma once
 //请求头+请求体
 //请求头+返回体
-// 时间格式yyyy - mm - dd hh : MM:ss
+// 时间格式yyyy-mm-dd hh:MM:ss
 //业务类型,单数表示客服端->服务器，双数是服务器->客户端
 #include <iostream>
 using namespace std;
-const size_t MAX_BODY_LENGTH = 5 * 1024; // 5kB
-const int MAX_BUSINESS_TYPE = 100; // 根据协议调整
+const size_t MAX_BODY_LENGTH = 3 * 1024; // 3kB
+const int MAX_BUSINESS_TYPE = 50; // 根据协议调整
 typedef struct HEAD {
 	int bussinessType;//请求体业务类型
 	int bussinessLength;//请求体字节长度
@@ -81,7 +81,7 @@ typedef struct AgreeLeaveRequest {
 typedef struct UploadVideoRequest {
 	char account[12];//用户账号,服务器要用这个字段来区分不同用户的数据
 	char name[40];//视频名称
-	char path[80];//客户端视频路径
+	char path[255];//客户端视频路径
 	char totaltime[10];//视频时长3:23:59
 	char createtime[24];//创建时间
 }UploadVideoRequest;
@@ -115,10 +115,10 @@ typedef struct VideoData {
 	int videoId;//视频id
 	char createtime[24];//视频创建时间 
 	char name[40];//视频名称
-	char videoPath[80];//客户端视频路径
+	char videoPath[255];//客户端视频路径
 	char totaltime[10];//视频总时长 格式为3:23:59
 	char currentPlaytime[10];//当前播放时长 格式为3:23:59
-	char picturePath[80];//客户端视频首帧图片路径
+	char picturePath[255];//客户端视频首帧图片路径
 }VideoData;
 //获取视频播放列表返回体 18
 typedef struct VideoListBack {
@@ -168,9 +168,9 @@ typedef struct ParkingInfoData {
 	int dueCost;//应付金额
 	int reallyCost;//实付金额
 	char entryPicName[40];//入场图片名称
-	char entryPicPath[80];//入场图片路径
+	char entryPicPath[255];//入场图片路径
 	char leavePicName[40];//出场图片名称
-	char leavePicPath[80];//出场图片路径
+	char leavePicPath[255];//出场图片路径
 }ParkingInfoData;
 //车辆信息查询返回体 22，用什么数据结构返回？一个包直接包含所有数据吗
 typedef struct ParkingInfoBack {
@@ -186,6 +186,11 @@ typedef struct FileInfoRequest {
 	char filename[40];//图片名称
 	int totalNumber;//原文件碎片总个数
 	int totalLength;//原文件总字节数
+
+	int type;//图片类型 1入场 2出场 3 监控截图 4视频首帧
+	char createtime[24];//图片创建时间
+	char khdPath[255];//客户端图片路径
+
 	int fileIndex;//当前碎片的序号，从1开始
 	int fileLength;//当前碎片的有效字节数
 	char context[1000];//文件二进制内容

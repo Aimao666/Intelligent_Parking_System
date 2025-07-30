@@ -18,6 +18,14 @@ void RegisterTask::work()
 	memcpy(&head, taskData, sizeof(HEAD));
 	memcpy(&request, taskData + sizeof(HEAD), head.bussinessLength);
 	cout << "注册请求-账号:" << request.account << "	验证码:" << request.code << endl;
+	//账号有效性校验
+	cout << "account=" << request.account << endl;
+	std::regex tel_reg("^1[3456789]\\d{9}$");
+	bool ret = std::regex_match(request.account, tel_reg);
+	std::cout << (ret ? "account valid" : "account invalid") << std::endl;
+	if (!ret) {
+		return;
+	}
 	
 	//校验手机号与验证码是否一致
 	auto it = DataManager::messageCodeMap.find(request.account);

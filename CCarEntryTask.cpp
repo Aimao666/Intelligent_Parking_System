@@ -1,19 +1,16 @@
-#include "CFileCheckTask.h"
-
-CFileCheckTask::CFileCheckTask(int fd, char* data, size_t len)
-	:CBaseTask(fd,data,len)
+#include "CCarEntryTask.h"
+CCarEntryTask::CCarEntryTask(int fd, char* data, size_t len)
+	:CBaseTask(fd, data, len)
 {
 }
 
-
-//一个文件发送完毕后客户端发来的确认包
-void CFileCheckTask::work()
+void CCarEntryTask::work()
 {
-	cout << "CFileCheckTask文件上传确认包" << endl;
-    //其实这里应该做一下基础的数据合法性校验
+	cout << "CCarEntryTask正在执行" << endl;
+	//其实这里应该做一下基础的数据合法性校验
     //数据解析
     memcpy(&head, taskData, sizeof(HEAD));
-    FileCheckRequest request;
+    CarEntryRequest request;
     memcpy(&request, taskData + sizeof(HEAD), sizeof(request));
     //账号有效性校验
     cout << "account=" << request.account << endl;

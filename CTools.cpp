@@ -124,6 +124,7 @@ std::string CTools::urlDecode(const std::string& str) {
     }
     return decoded.str();
 }
+//生成随机验证码
 std::string CTools::generateCode(int length) {
     static const char digits[] = "0123456789";
     std::string code;
@@ -133,4 +134,23 @@ std::string CTools::generateCode(int length) {
     }
 
     return code;
+}
+
+//时间戳转时间字符串
+string CTools::convertTimeStamp2TimeStr(time_t timeStamp)
+{
+    struct tm* timeinfo = nullptr;
+    char buffer[80];
+    timeinfo = localtime(&timeStamp);
+    strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
+    return string(buffer);
+}
+//时间字符串转时间戳
+time_t CTools::convertTimeStr2TimeStamp(string timeStr)
+{
+    struct tm timeinfo;
+    strptime(timeStr.c_str(), "%Y-%m-%d %H:%M:%S", &timeinfo);
+    time_t tt;
+    tt = mktime(&timeinfo);
+    return tt;
 }

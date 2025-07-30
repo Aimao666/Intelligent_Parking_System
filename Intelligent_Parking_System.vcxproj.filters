@@ -57,6 +57,13 @@
     <ClCompile Include="CSendBackTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
+    <ClCompile Include="CCarEntryTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CCarLeaveTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CAgreeLeaveTask.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBaseTask.h">
@@ -117,6 +124,13 @@
     <ClInclude Include="CSendBackTask.h">
       <Filter>task</Filter>
     </ClInclude>
+    <ClInclude Include="CCarEntryTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CCarLeaveTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CAgreeLeaveTask.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="task">

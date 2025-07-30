@@ -18,6 +18,15 @@ void SendCodeTask::work()
 	memcpy(&head, taskData, sizeof(HEAD));
 	memcpy(&request, taskData + sizeof(HEAD), head.bussinessLength);
 	cout << "验证码请求-账号:" << request.account <<  endl;
+	//账号有效性校验
+	cout << "account=" << request.account << endl;
+	std::regex tel_reg("^1[3456789]\\d{9}$");
+	bool ret = std::regex_match(request.account, tel_reg);
+	std::cout << (ret ? "account valid" : "account invalid") << std::endl;
+	if (!ret) {
+		return;
+	}
+
 	//随机生成验证码
 	std::string code = CTools::generateCode(6);
 	//记录验证码与手机号对应关系，然后发送短信

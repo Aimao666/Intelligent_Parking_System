@@ -8,7 +8,8 @@
 #include "CFileUploadTask.h"
 #include "CFileCheckTask.h"
 #include "CSendBackTask.h"
-
+#include "CCarEntryTask.h"
+#include "CCarLeaveTask.h"
 using namespace std;
 class CTaskFactory
 {

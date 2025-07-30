@@ -4,7 +4,7 @@ CSendBackTask::CSendBackTask(int fd, char* data, size_t len)
 	:CBaseTask(fd,data,len)
 {
 }
-//给客户端发送返回包
+//给客户端发送返回包，前置直接发，不管内容，内容都在后置已经编辑好了
 void CSendBackTask::work()
 {
 	cout << "CSendBackTask正在执行" << endl; 

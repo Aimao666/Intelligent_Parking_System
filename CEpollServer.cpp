@@ -38,7 +38,7 @@ CEpollServer::CEpollServer(unsigned short port, int maxEvents)
 	bzero(this->epolleventArray.get(), sizeof(this->epolleventArray.get()));
 	bzero(&this->epollevent, sizeof(this->epollevent));
 	//初始化线程池
-	pool.reset(new CThreadPool());
+	pool.reset(new CThreadPool(4));
 	taskFctory = CTaskFactory::getInstance();
 	pthread_create(&msgrcvThread, NULL, CEpollServer::msgrcvThread_function, this);
 }
@@ -86,7 +86,7 @@ void CEpollServer::work()
 			}
 			//客户端下线或者客户端发来报文
 			else if (epolleventArray[i].events & EPOLLIN) {
-				handleClientData2(epolleventArray[i].data.fd);
+				handleClientData(epolleventArray[i].data.fd);
 			}
 			else {
 				cout << "预料之外的事件类型" << endl;
@@ -127,12 +127,12 @@ void* CEpollServer::msgrcvThread_function(void* arg)
 {
 	CEpollServer* server = static_cast<CEpollServer*>(arg);
 	IPCManager* ipc = IPCManager::getInstance();
-	int msgid = ipc->initMsg(20001);
-	int semid = ipc->initSem(20001, 48, 1);
+	int msgid = ipc->getMsgid();
+	int semid = ipc->getSemid();
 	int block_num = ipc->getNums_sems();//信号量数组大小，对应共享内存被拆分成多少块
-	int shmid = ipc->initShm(20001, block_num * (sizeof(int) + MAX_BODY_LENGTH));
+	int shmid = ipc->getShmid();
 	if (msgid < 0 || semid < 0 || shmid < 0) {
-		cout << "ipc分配失败" << endl;
+		cout << "ipc分配失败,shmid=" << shmid << " semid=" << semid << " msgid=" << msgid << endl;
 		return nullptr;
 	}
 	//void* shmaddr = shmat(shmid, NULL, 0);//用于接收共享内存块起始地址
@@ -179,127 +179,9 @@ void* CEpollServer::msgrcvThread_function(void* arg)
 	//shmdt(shmaddr);
 	return nullptr;
 }
+
+//处理客户端下线或者客户端报文
 void CEpollServer::handleClientData(int clientFd)
-{
-	auto& conn = connections[clientFd]; // 获取连接状态
-	bool connectionClosed = false;
-	bool readError = false;
-
-	while (true) {
-		if (conn.state == READING_HEADER) {
-			// 1. 读取头部
-			ssize_t res = read(clientFd, &conn.header, sizeof(HEAD));
-
-			if (res == sizeof(HEAD)) {
-				// 验证头部字段的合理性
-				if (conn.header.bussinessLength <= 0 || conn.header.bussinessLength > MAX_BODY_LENGTH) {
-					cerr << "非法body长度: " << conn.header.bussinessLength << "，关闭连接" << endl;
-					closeClient(clientFd);
-					break;
-				}
-
-				if (conn.header.bussinessType < 1 || conn.header.bussinessType > MAX_BUSINESS_TYPE) {
-					cerr << "非法业务类型: " << conn.header.bussinessType << "，关闭连接" << endl;
-					closeClient(clientFd);
-					break;
-				}
-
-				// 准备读取主体
-				conn.bodyBuffer.resize(conn.header.bussinessLength);
-				conn.bytesRead = 0;
-				conn.state = READING_BODY;
-				cout << "开始读取主体，长度: " << conn.header.bussinessLength << endl;
-			}
-			else if (res == 0) {
-				connectionClosed = true;
-				break;
-			}
-			else if (res == -1) {
-				if (errno == EAGAIN || errno == EWOULDBLOCK) {
-					break; // 暂时无数据
-				}
-				else {
-					readError = true;
-					break;
-				}
-			}
-			else {
-				// 部分读取头部
-				cerr << "读取部分HEAD: " << res << "/" << sizeof(HEAD) << endl;
-				readError = true;
-				break;
-			}
-		}
-		else if (conn.state == READING_BODY) {
-			// 2. 读取主体
-			ssize_t n = read(clientFd, conn.bodyBuffer.data() + conn.bytesRead,
-				conn.header.bussinessLength - conn.bytesRead);
-
-			if (n > 0) {
-				conn.bytesRead += n;
-				cout << "读取主体: " << n << "字节，累计: " << conn.bytesRead
-					<< "/" << conn.header.bussinessLength << endl;
-
-				// 检查是否读取完整
-				if (conn.bytesRead == conn.header.bussinessLength) {
-					conn.state = PROCESSING;
-				}
-			}
-			else if (n == 0) {
-				connectionClosed = true;
-				break;
-			}
-			else if (n == -1) {
-				if (errno == EAGAIN || errno == EWOULDBLOCK) {
-					break; // 暂时无数据
-				}
-				else {
-					readError = true;
-					break;
-				}
-			}
-		}
-		else if (conn.state == PROCESSING) {
-			// 3. 处理完整请求
-			cout << "处理完整请求，类型: " << conn.header.bussinessType << endl;
-
-			// 验证CRC
-			uint32_t calculatedCRC = CTools::crc32(
-				reinterpret_cast<uint8_t*>(conn.bodyBuffer.data()),
-				conn.header.bussinessLength
-			);
-
-			if (calculatedCRC == conn.header.crc) {
-				cout << "CRC校验成功: " << calculatedCRC << endl;
-
-				// 创建任务（复制数据）
-				auto task = taskFctory->createTask(clientFd, conn.header.bussinessType,
-					conn.bodyBuffer.data(), conn.header.bussinessLength);
-				pool->pushTask(move(task));
-			}
-			else {
-				cout << "CRC校验失败: 预期=" << conn.header.crc
-					<< " 实际=" << calculatedCRC << endl;
-			}
-
-			// 重置状态，准备处理下一个请求
-			conn.state = READING_HEADER;
-			conn.bodyBuffer.clear();
-			conn.bytesRead = 0;
-		}
-
-		// 检查是否还有数据（ET模式可能需要处理多个请求）
-		if (connectionClosed || readError) break;
-	}
-
-	// 处理连接关闭或错误
-	if (connectionClosed || readError) {
-		closeClient(clientFd);
-		connections.erase(clientFd);
-	}
-}
-
-void CEpollServer::handleClientData2(int clientFd)
 {
 	//ET模式下要读该客户端缓冲区的所有内容!!!!!!!!必须循环读取直到EAGAIN
 	bool connectionClosed = false;
@@ -313,12 +195,21 @@ void CEpollServer::handleClientData2(int clientFd)
 			cout << "res == sizeof(HEAD)=" << res << endl;
 			cout << "head.bussinessLength=" << head.bussinessLength << endl;
 			cout << "head.bussinessType=" << head.bussinessType << endl;
+			cout << "head.crc=" << head.crc << endl;
+			//++请求头合法性校验++
+			if (head.bussinessLength > MAX_BODY_LENGTH || head.bussinessType > MAX_BUSINESS_TYPE || head.crc <= 0) {
+				cout << "请求头数据合法性校验失败" << endl;
+				//清除缓冲区
+				cleanReadBuffer(clientFd);
+				break;
+			}
+
 			//客户端发来请求
 			char buf[head.bussinessLength];
 			//2.读请求体
 			res = read(clientFd, buf, head.bussinessLength);
 			//3.验证请求体数据合法性
-			if (res == head.bussinessLength && CTools::crc32((uint8_t*)buf, head.bussinessLength) == head.crc && head.crc > 0) {
+			if (res == head.bussinessLength && CTools::crc32((uint8_t*)buf, head.bussinessLength) == head.crc) {
 				cout << "crc校验成功:" << head.crc << endl;
 				//任务创建器,请求体给到任务中
 				char headAndBody[sizeof(HEAD) + head.bussinessLength];
@@ -330,10 +221,14 @@ void CEpollServer::handleClientData2(int clientFd)
 				pool->pushTask(move(task));
 			}
 			else {
-				//验证发现数据不合法1.长度小了 2.crc校验不通过
-				   //疑问？是否需要将此次clientFd缓冲区剩余的所有数据丢弃
+				//验证发现数据不合法1.读取的请求体长度小了 2.crc校验不通过\
 				cout << "crc校验失败head.crc" << head.crc << "!=" << CTools::crc32((uint8_t*)buf, head.bussinessLength) << endl;
-
+				if (res < head.bussinessLength) {
+					//半包，清空缓冲区
+					cout << "半包res=" << res << "<head.bussinessLength=" << head.bussinessLength << endl;
+					cleanReadBuffer(clientFd);
+					break;
+				}
 			}
 		}
 		else if (res == 0) {
@@ -351,7 +246,7 @@ void CEpollServer::handleClientData2(int clientFd)
 		}
 		else {
 			// 其他错误
-			cout << "其他错误" << endl;
+			cout << "其他错误,res=" << res << " errno=" << errno << endl;
 			readError = true;
 			break;
 		}
@@ -363,5 +258,20 @@ void CEpollServer::handleClientData2(int clientFd)
 		//没读到东西，客户端下线
 		closeClient(clientFd);
 	}
+}
+
+//清空目标客户端fd的缓冲区
+void CEpollServer::cleanReadBuffer(int clientFd)
+{
+	char buf[5000];
+	int res = 1;
+	while (res > 0) {
+		res = read(clientFd, buf, sizeof(buf));
+	}
+}
+
+int CEpollServer::getSocketfd()
+{
+	return socketfd;
 }
 

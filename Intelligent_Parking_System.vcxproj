@@ -76,8 +76,11 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClCompile Include="CAgreeLeaveTask.cpp" />
     <ClCompile Include="CBaseSocket.cpp" />
     <ClCompile Include="CBaseTask.cpp" />
+    <ClCompile Include="CCarEntryTask.cpp" />
+    <ClCompile Include="CCarLeaveTask.cpp" />
     <ClCompile Include="CEpollServer.cpp" />
     <ClCompile Include="CFileCheckTask.cpp" />
     <ClCompile Include="CFileUploadTask.cpp" />
@@ -98,8 +101,11 @@
     <ClCompile Include="SendCodeTask.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CAgreeLeaveTask.h" />
     <ClInclude Include="CBaseSocket.h" />
     <ClInclude Include="CBaseTask.h" />
+    <ClInclude Include="CCarEntryTask.h" />
+    <ClInclude Include="CCarLeaveTask.h" />
     <ClInclude Include="CEpollServer.h" />
     <ClInclude Include="CFileCheckTask.h" />
     <ClInclude Include="CFileUploadTask.h" />

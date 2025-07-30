@@ -193,11 +193,11 @@ void* CThreadPool::thread_function(void* arg)
 			pool->wait();
 		}
 
-		cout << "-----------------------------" << endl;
+		/*cout << "-----------------------------" << endl;
 		cout << "线程工作前 任务数：" << pool->taskQueue.size() << endl;
 		cout << "线程工作前 忙碌链表线程数：" << pool->busyList.size() << endl;
 		cout << "线程工作前 空闲链表线程数：" << pool->idleList.size() << endl;
-		cout << "-----------------------------" << endl;
+		cout << "-----------------------------" << endl;*/
 
 		//当前线程被唤醒了，且有任务能做且锁在自己手上
 		unique_ptr<CBaseTask> task = pool->popTask();
@@ -205,7 +205,13 @@ void* CThreadPool::thread_function(void* arg)
 		pool->moveToBusy(tid);
 		pool->unlock();
 		//处理任务
-		task->work();
+
+		try {
+			task->work(); // 捕获任务执行中的异常
+		}
+		catch (std::exception& e) {
+			std::cerr << "任务执行异常: " << e.what() << std::endl;
+		}
 
 		pool->lock();
 		//移动到空闲链表
@@ -214,11 +220,11 @@ void* CThreadPool::thread_function(void* arg)
 		pool->checkDestroyCondition();
 		pool->unlock();
 
-		cout << "-----------------------------" << endl;
+		/*cout << "-----------------------------" << endl;
 		cout << "线程工作后 任务数：" << pool->taskQueue.size() << endl;
 		cout << "线程工作后 忙碌链表线程数：" << pool->busyList.size() << endl;
 		cout << "线程工作后 空闲链表线程数：" << pool->idleList.size() << endl;
-		cout << "-----------------------------" << endl;
+		cout << "-----------------------------" << endl;*/
 	}
 
 	return nullptr;

@@ -30,6 +30,12 @@ public:
 
 	//递归的创建目录
 	static bool createDirectoryRecursive(const std::string& path, mode_t mode = 0777);
+
+	//时间戳转时间字符串
+	static string convertTimeStamp2TimeStr(time_t timeStamp);
+
+	//时间字符串转时间戳
+	static time_t convertTimeStr2TimeStamp(string timeStr);
 private:
 	CTools() = delete;
 	~CTools() = delete;

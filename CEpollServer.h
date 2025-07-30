@@ -20,9 +20,17 @@ public:
 	~CEpollServer();
 	void work();
 	CThreadPool* getPool() const;
+	//关闭连接
 	void closeClient(int clientFd);
+
+	//清空目标客户端fd的缓冲区
+	void cleanReadBuffer(int clientFd);
+
+	//处理客户端下线或者客户端报文
 	void handleClientData(int clientFd);
-	void handleClientData2(int clientFd);
+
+
+	int getSocketfd();
 private:
 	/*
 	函数参数:
@@ -54,22 +62,5 @@ private:
 	pthread_t msgrcvThread;
 	//线程执行函数
 	static void* msgrcvThread_function(void* arg);
-
-	enum ConnectionState {
-		READING_HEADER,   // 正在读取头部
-		READING_BODY,     // 正在读取主体
-		PROCESSING        // 已读取完整请求
-	};
-
-	//状态机
-	struct ConnectionData {
-		ConnectionState state;
-		HEAD header;
-		std::vector<char> bodyBuffer;//内存又vector管理，加上resize分配内存就避免了动态扩容开销大的风险
-		size_t bytesRead;
-	};
-
-	//每一个客户端文件描述符fd对应一个状态机
-	unordered_map<int, ConnectionData> connections;
 };
 

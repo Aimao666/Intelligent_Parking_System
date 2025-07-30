@@ -102,7 +102,7 @@ int IPCManager::initSem(key_t key, int nsems, int value)
     }
     else if (errno == EEXIST) {
         // 信号量已存在：直接获取其ID
-        semid = semget(key, nsems, 0666);
+        semid = semget(key, nsems, 0777);
         cout << "信号量已存在，直接使用" << endl;
     }
     else {
@@ -143,7 +143,7 @@ void IPCManager::sem_p(int semid, int sem_index)
         perror("semop err");
         return;
     }
-    cout << "信号量P 加锁成功" << endl;
+    //cout << "信号量P 加锁成功" << endl;
 }
 
 //信号量V操作 +1 参数semid:对应信号量id 参数sem_index:你要做+1操作的信号量数组下标元素
@@ -155,13 +155,14 @@ void IPCManager::sem_v(int semid, int sem_index)
         perror("semop err");
         return;
     }
-    cout << "信号量V 解锁成功" << endl;
+    //cout << "信号量V 解锁成功" << endl;
 }
 
 
 //数据写入到共享内存,
 //mtype表示消息队列消息类型,1表示从前置到后置，2表示从后置到前置
 //mtype也表示共享内存索引值，1表示后置可读，2表示前置可读
+//返回值0表示为找到可写区域，1表示写入成功，-1表示其他错误
 int IPCManager::saveData(char* data, size_t len, int mtype)
 {
     //数据放到共享内存
@@ -170,7 +171,7 @@ int IPCManager::saveData(char* data, size_t len, int mtype)
     if (shmaddr == (void*)-1) {
         perror("shmat 失败");
         cout << "无法连接共享内存,退出" << endl;
-        return 0;
+        return -1;
     }
     int indexArr[block_num];//索引区
     int targetIndex = -1;
@@ -204,7 +205,7 @@ int IPCManager::saveData(char* data, size_t len, int mtype)
         if (msgsnd(msgid, &msgbuf, sizeof(msgbuf.mtext), 0) == -1) {
             perror("msgsnd err");
             shmdt(shmaddr);
-            return 0;
+            return -1;
         }
         else
         {
