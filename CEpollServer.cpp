@@ -221,14 +221,14 @@ void CEpollServer::handleClientData(int clientFd)
 				pool->pushTask(move(task));
 			}
 			else {
-				//验证发现数据不合法1.读取的请求体长度小了 2.crc校验不通过\
-				cout << "crc校验失败head.crc" << head.crc << "!=" << CTools::crc32((uint8_t*)buf, head.bussinessLength) << endl;
+				//验证发现数据不合法1.读取的请求体长度小了 2.crc校验不通过
 				if (res < head.bussinessLength) {
 					//半包，清空缓冲区
 					cout << "半包res=" << res << "<head.bussinessLength=" << head.bussinessLength << endl;
 					cleanReadBuffer(clientFd);
 					break;
 				}
+				cout << "crc校验失败head.crc" << head.crc << "!=" << CTools::crc32((uint8_t*)buf, head.bussinessLength) << endl;
 			}
 		}
 		else if (res == 0) {
@@ -242,6 +242,12 @@ void CEpollServer::handleClientData(int clientFd)
 			// EAGAIN或EWOULDBLOCK：非阻塞模式下暂时无数据，下次再试
 			// ET模式：暂时无数据，等待下次事件
 			cout << "res == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)" << endl;
+			break;
+		}
+		else if (res > 0) {
+			//半包，清空缓冲区
+			cout << "请求体半包res=" << res << endl;
+			cleanReadBuffer(clientFd);
 			break;
 		}
 		else {

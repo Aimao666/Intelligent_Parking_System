@@ -46,24 +46,36 @@ typedef struct RegisterRequest {
 typedef struct CarEntryRequest {
 	char account[12];//用户账号,服务器要用这个字段来区分不同用户的数据
 	char entryTime[24];//入场时间
-	char carNumber[10];//车牌号
+	char carNumber[20];//车牌号
 	char entryPosition[20];//入场位置
 }CarEntryRequest;
-//入场返回体8
+//单个车辆入场信息
+typedef struct CarEntryData {
+	int id;//序号
+	char entryTime[24];//入场时间
+	char carNumber[20];//车牌号
+	char entryPosition[20];//入场位置
+}CarEntryData;
+
+//入场返回体(新的)8
+typedef struct CarEntryBack {
+	int validNum;//有效数据个数
+	CarEntryData carEntryArr[4];//车辆信息数组，最新的四条,倒序
+}CarEntryBack;
 
 
 //出场 - 识别车牌请求体9 - 客户端要获取该车的停车时长和应收金额
 typedef struct CarLeaveRequest {
 	char account[12];//用户账号,服务器要用这个字段来区分不同用户的数据
 	char leaveTime[24];//出场时间
-	char carNumber[10];//车牌号
+	char carNumber[20];//车牌号
 	char leavePosition[20];//出场位置
 }CarLeaveRequest;
 //出场 - 识别车牌返回体10 - 客户端要获取该车的停车时长和应收金额 
 typedef struct CarLeaveBack {
 	char entryTime[24];//出场时间
 	long long mesc;//停车时长（秒数）
-	char carNumber[10];//车牌号
+	char carNumber[20];//车牌号
 	int dueCost;//应收金额
 }CarLeaveBack;
 
@@ -72,7 +84,7 @@ typedef struct CarLeaveBack {
 typedef struct AgreeLeaveRequest {
 	char account[12];//用户账号,服务器要用这个字段来区分不同用户的数据
 	int reallyCost;//实际缴费金额
-	char carNumber[10];//车牌号
+	char carNumber[20];//车牌号
 }AgreeLeaveRequest;
 //放行返回体 12
 
@@ -154,7 +166,7 @@ typedef struct replayinfoback {
 //车牌号支持模糊查询，入场时间、出场时间表示 入场时间 >= 查询入场时间，出场时间 <= 查询出场时间
 typedef struct ParkingInfoRequest {
 	char account[12];//用户账号,服务器要用这个字段来区分不同用户的数据
-	char carNumber[10];//车牌号
+	char carNumber[20];//车牌号
 	char entryTime[24];//入场时间
 	char leaveTime[24];//出场时间
 	int currentPage;//当前页
@@ -162,7 +174,7 @@ typedef struct ParkingInfoRequest {
 //单个停车车辆信息数据
 typedef struct ParkingInfoData {
 	int id;//停车记录id
-	char carNumber[10];//车牌号
+	char carNumber[20];//车牌号
 	char entryTime[24];//入场时间
 	char leaveTime[24];//出场时间
 	int dueCost;//应付金额
