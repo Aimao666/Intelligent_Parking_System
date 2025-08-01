@@ -21,5 +21,6 @@ void CCarLeaveTask::work()
     if (!ret) {
         return;
     }
+
 	CBaseTask::work();
 }

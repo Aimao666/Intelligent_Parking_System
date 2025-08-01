@@ -92,6 +92,8 @@
     <ClCompile Include="CTcpServer.cpp" />
     <ClCompile Include="CThreadPool.cpp" />
     <ClCompile Include="CTools.cpp" />
+    <ClCompile Include="CUpdateCarNumberTask.cpp" />
+    <ClCompile Include="CUploadVideoTask.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="IPCManager.cpp" />
@@ -117,6 +119,8 @@
     <ClInclude Include="CTcpServer.h" />
     <ClInclude Include="CThreadPool.h" />
     <ClInclude Include="CTools.h" />
+    <ClInclude Include="CUpdateCarNumberTask.h" />
+    <ClInclude Include="CUploadVideoTask.h" />
     <ClInclude Include="DataManager.h" />
     <ClInclude Include="MessageCodeSender.h" />
     <ClInclude Include="protocol.h" />

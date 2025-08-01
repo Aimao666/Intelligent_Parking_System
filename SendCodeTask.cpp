@@ -31,7 +31,8 @@ void SendCodeTask::work()
 	std::string code = CTools::generateCode(6);
 	//记录验证码与手机号对应关系，然后发送短信
 	DataManager::messageCodeMap[request.account] = code;
-	int res = MessageCodeSender::getInstance().sendVerificationCode(request.account, code);
+	int res = 1;
+	//res = MessageCodeSender::getInstance().sendVerificationCode(request.account, code);
 
 	//准备返回体
 	HEAD backHead;

@@ -20,5 +20,10 @@ void CCarEntryTask::work()
     if (!ret) {
         return;
     }
+
+    cout << "+++++++CarEntryRequest详细信息+++++++" << endl;
+    cout << "account=" << request.account << " carNumber=" << request.carNumber << endl;
+    cout << "entryTime=" << request.entryTime << " entryPosition=" << request.entryPosition << endl;
+    cout << "++++++++++++++++++++" << endl;
 	CBaseTask::work();
 }

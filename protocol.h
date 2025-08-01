@@ -61,6 +61,9 @@ typedef struct CarEntryData {
 typedef struct CarEntryBack {
 	int validNum;//有效数据个数
 	CarEntryData carEntryArr[4];//车辆信息数组，最新的四条,倒序
+	int remainNum;//剩余车位数量
+	int currentNum;//当前停车数量
+
 }CarEntryBack;
 
 
@@ -77,6 +80,9 @@ typedef struct CarLeaveBack {
 	long long mesc;//停车时长（秒数）
 	char carNumber[20];//车牌号
 	int dueCost;//应收金额
+	int remainNum;//剩余车位数量
+	int currentNum;//当前停车数量
+
 }CarLeaveBack;
 
 
@@ -92,10 +98,12 @@ typedef struct AgreeLeaveRequest {
 //上传录制视频信息请求体13
 typedef struct UploadVideoRequest {
 	char account[12];//用户账号,服务器要用这个字段来区分不同用户的数据
-	char name[40];//视频名称
-	char path[255];//客户端视频路径
+	char vname[40];//视频名称
+	char vpath[255];//客户端视频路径
 	char totaltime[10];//视频时长3:23:59
 	char createtime[24];//创建时间
+	char pname[40];//首帧图片名称
+	char ppath[255];//首帧图片在客户端存储的地址
 }UploadVideoRequest;
 //上传录制视频信息返回体14
 
@@ -199,7 +207,7 @@ typedef struct FileInfoRequest {
 	int totalNumber;//原文件碎片总个数
 	int totalLength;//原文件总字节数
 
-	int type;//图片类型 1入场 2出场 3 监控截图 4视频首帧
+	int type;//图片类型 1入场 2出场 3 监控截图
 	char createtime[24];//图片创建时间
 	char khdPath[255];//客户端图片路径
 
@@ -228,3 +236,12 @@ typedef struct FileSuccessBack
 	char filename[40]; //文件名称
 	int flag; //结果标志
 }FileSuccessBack;
+//修改车牌请求27
+typedef struct UpdateCarNumberRequest
+{
+	char account[12]; //归属账号
+	char oldCarNumber[20]; //原来的车牌
+	char newCarNumber[20]; //新的车牌
+	char entryTime[24];//入场时间
+}UpdateCarNumberRequest;
+//修改车牌返回体28

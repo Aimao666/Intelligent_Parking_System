@@ -10,6 +10,9 @@
 #include "CSendBackTask.h"
 #include "CCarEntryTask.h"
 #include "CCarLeaveTask.h"
+#include "CAgreeLeaveTask.h"
+#include "CUploadVideoTask.h"
+#include "CUpdateCarNumberTask.h"
 using namespace std;
 class CTaskFactory
 {

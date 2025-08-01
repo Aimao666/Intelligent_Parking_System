@@ -66,6 +66,12 @@
     <ClCompile Include="CAgreeLeaveTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
+    <ClCompile Include="CUploadVideoTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CUpdateCarNumberTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBaseTask.h">
@@ -133,6 +139,12 @@
       <Filter>task</Filter>
     </ClInclude>
     <ClInclude Include="CAgreeLeaveTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CUploadVideoTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CUpdateCarNumberTask.h">
       <Filter>task</Filter>
     </ClInclude>
   </ItemGroup>

@@ -41,6 +41,16 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 		unique_ptr<CCarLeaveTask> task(new CCarLeaveTask(clientFd, data, length));
 		return task;
 	}
+	case 11://放行请求
+	{
+		unique_ptr<CAgreeLeaveTask> task(new CAgreeLeaveTask(clientFd, data, length));
+		return task;
+	}
+	case 13://上传录制视频信息请求
+	{
+		unique_ptr<CUploadVideoTask> task(new CUploadVideoTask(clientFd, data, length));
+		return task;
+	}
 	case 23://文件上传
 	{
 		unique_ptr<CFileUploadTask> task(new CFileUploadTask(clientFd, data, length));
@@ -51,13 +61,17 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 		unique_ptr<CFileCheckTask> task(new CFileCheckTask(clientFd, data, length));
 		return task;
 	}
-
+	case 27://修改车牌请求
+	{
+		unique_ptr<CUpdateCarNumberTask> task(new CUpdateCarNumberTask(clientFd, data, length));
+		return task;
+	}
 	case 2:// 登录返回
 	case 4:// 验证码返回
 	case 6:// 注册返回
 	case 8:// 入场返回
 	case 10://出场返回
-	case 12:
+	case 12://放行返回
 	case 14:
 	case 16:
 	case 18:
@@ -65,6 +79,7 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 	case 22:
 	case 24://文件上传-丢失的碎片返回包
 	case 26://文件上传-结果返回包
+	case 28://修改车牌返回
 	{
 		unique_ptr<CSendBackTask> task(new CSendBackTask(clientFd, data, length));
 		return task;
