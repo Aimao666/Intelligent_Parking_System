@@ -72,6 +72,18 @@
     <ClCompile Include="CUpdateCarNumberTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
+    <ClCompile Include="CUploadPlayinfoTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CVideoDateTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CVideoListTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="CParkingInfoTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBaseTask.h">
@@ -145,6 +157,18 @@
       <Filter>task</Filter>
     </ClInclude>
     <ClInclude Include="CUpdateCarNumberTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CUploadPlayinfoTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CVideoDateTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CVideoListTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CParkingInfoTask.h">
       <Filter>task</Filter>
     </ClInclude>
   </ItemGroup>

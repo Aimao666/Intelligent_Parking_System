@@ -86,6 +86,7 @@
     <ClCompile Include="CFileUploadTask.cpp" />
     <ClCompile Include="CHostAddress.cpp" />
     <ClCompile Include="CLoginTask.cpp" />
+    <ClCompile Include="CParkingInfoTask.cpp" />
     <ClCompile Include="CReadShmTask.cpp" />
     <ClCompile Include="CSendBackTask.cpp" />
     <ClCompile Include="CTaskFactory.cpp" />
@@ -93,7 +94,10 @@
     <ClCompile Include="CThreadPool.cpp" />
     <ClCompile Include="CTools.cpp" />
     <ClCompile Include="CUpdateCarNumberTask.cpp" />
+    <ClCompile Include="CUploadPlayinfoTask.cpp" />
     <ClCompile Include="CUploadVideoTask.cpp" />
+    <ClCompile Include="CVideoDateTask.cpp" />
+    <ClCompile Include="CVideoListTask.cpp" />
     <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="IPCManager.cpp" />
@@ -113,6 +117,7 @@
     <ClInclude Include="CFileUploadTask.h" />
     <ClInclude Include="CHostAddress.h" />
     <ClInclude Include="CLoginTask.h" />
+    <ClInclude Include="CParkingInfoTask.h" />
     <ClInclude Include="CReadShmTask.h" />
     <ClInclude Include="CSendBackTask.h" />
     <ClInclude Include="CTaskFactory.h" />
@@ -120,7 +125,10 @@
     <ClInclude Include="CThreadPool.h" />
     <ClInclude Include="CTools.h" />
     <ClInclude Include="CUpdateCarNumberTask.h" />
+    <ClInclude Include="CUploadPlayinfoTask.h" />
     <ClInclude Include="CUploadVideoTask.h" />
+    <ClInclude Include="CVideoDateTask.h" />
+    <ClInclude Include="CVideoListTask.h" />
     <ClInclude Include="DataManager.h" />
     <ClInclude Include="MessageCodeSender.h" />
     <ClInclude Include="protocol.h" />

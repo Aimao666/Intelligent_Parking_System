@@ -13,6 +13,10 @@
 #include "CAgreeLeaveTask.h"
 #include "CUploadVideoTask.h"
 #include "CUpdateCarNumberTask.h"
+#include "CVideoDateTask.h"
+#include "CVideoListTask.h"
+#include "CUploadPlayinfoTask.h"
+#include "CParkingInfoTask.h"
 using namespace std;
 class CTaskFactory
 {

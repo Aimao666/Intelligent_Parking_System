@@ -51,6 +51,26 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 		unique_ptr<CUploadVideoTask> task(new CUploadVideoTask(clientFd, data, length));
 		return task;
 	}
+	case 15://获取服务器所存储的视频日期 
+	{
+		unique_ptr<CVideoDateTask> task(new CVideoDateTask(clientFd, data, length));
+		return task;
+	}
+	case 17://获取视频播放列表请求体 
+	{
+		unique_ptr<CVideoListTask> task(new CVideoListTask(clientFd, data, length));
+		return task;
+	}
+	case 19://上传视频播放信息
+	{
+		unique_ptr<CUploadPlayinfoTask> task(new CUploadPlayinfoTask(clientFd, data, length));
+		return task;
+	}
+	case 21://车辆信息查询请求体
+	{
+		unique_ptr<CParkingInfoTask> task(new CParkingInfoTask(clientFd, data, length));
+		return task;
+	}
 	case 23://文件上传
 	{
 		unique_ptr<CFileUploadTask> task(new CFileUploadTask(clientFd, data, length));
@@ -72,11 +92,11 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 	case 8:// 入场返回
 	case 10://出场返回
 	case 12://放行返回
-	case 14:
-	case 16:
-	case 18:
-	case 20:
-	case 22:
+	case 14://上传录制视频信息返回
+	case 16://获取服务器所存储的视频日期
+	case 18://获取视频播放列表
+	case 20://上传播放视频信息返回体
+	case 22://车辆信息查询
 	case 24://文件上传-丢失的碎片返回包
 	case 26://文件上传-结果返回包
 	case 28://修改车牌返回
