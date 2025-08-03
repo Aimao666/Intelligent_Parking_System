@@ -220,11 +220,11 @@ void* CThreadPool::thread_function(void* arg)
 		pool->checkDestroyCondition();
 		pool->unlock();
 
-		/*cout << "-----------------------------" << endl;
+		cout << "-----------------------------" << endl;
 		cout << "线程工作后 任务数：" << pool->taskQueue.size() << endl;
 		cout << "线程工作后 忙碌链表线程数：" << pool->busyList.size() << endl;
 		cout << "线程工作后 空闲链表线程数：" << pool->idleList.size() << endl;
-		cout << "-----------------------------" << endl;*/
+		cout << "-----------------------------" << endl;
 	}
 
 	return nullptr;

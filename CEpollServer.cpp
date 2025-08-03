@@ -83,6 +83,11 @@ void CEpollServer::work()
 				int flags = fcntl(acceptfd, F_GETFL, 0);
 				fcntl(acceptfd, F_SETFL, flags | O_NONBLOCK);
 				epollControl(acceptfd, EPOLL_CTL_ADD, 2);
+				//记录上线心跳
+				DataManager::ClientValue *clientValue = new DataManager::ClientValue{ "",CTools::getDatetime() };
+				pthread_mutex_lock(&DataManager::mutex);
+				DataManager::heartServiceMap[acceptfd] = unique_ptr<DataManager::ClientValue>(clientValue);
+				pthread_mutex_unlock(&DataManager::mutex);
 			}
 			//客户端下线或者客户端发来报文
 			else if (epolleventArray[i].events & EPOLLIN) {
@@ -218,7 +223,13 @@ void CEpollServer::handleClientData(int clientFd)
 				//cout << "Epoll:clientFd=" << clientFd << endl;
 				auto task = taskFctory->createTask(clientFd, head.bussinessType, headAndBody, sizeof(headAndBody));
 				//任务给到线程池
-				pool->pushTask(move(task));
+				if (task) {
+					pool->pushTask(move(task));
+				}
+				//接收到合法包数量+1
+				pthread_mutex_lock(&DataManager::mutex);
+				++DataManager::rcvPacket;
+				pthread_mutex_unlock(&DataManager::mutex);
 			}
 			else {
 				//验证发现数据不合法1.读取的请求体长度小了 2.crc校验不通过

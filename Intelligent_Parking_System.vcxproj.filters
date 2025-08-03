@@ -84,6 +84,9 @@
     <ClCompile Include="CParkingInfoTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
+    <ClCompile Include="CHeartServerTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBaseTask.h">
@@ -169,6 +172,9 @@
       <Filter>task</Filter>
     </ClInclude>
     <ClInclude Include="CParkingInfoTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
+    <ClInclude Include="CHeartServerTask.h">
       <Filter>task</Filter>
     </ClInclude>
   </ItemGroup>

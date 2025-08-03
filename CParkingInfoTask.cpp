@@ -27,8 +27,8 @@ void CParkingInfoTask::work()
     cout << "currentPage=" << request.currentPage << " entryTime=" << request.entryTime << endl;
     cout << "leaveTime=" << request.leaveTime << " carNumber=" << request.carNumber << endl;
     cout << "++++++++++++++++++++" << endl;
-    if (request.currentPage < 0||!(strcmp(request.carNumber, "")&& !strcmp(request.entryTime, "")&& !strcmp(request.leaveTime, ""))) {
-        cout << "数据校验不通过,请求页不得小于0且车牌号，入场时间，出场时间不能全为空" << endl;
+    if (request.currentPage <= 0) {
+        cout << "数据校验不通过,请求页不得小于等于0" << endl;
         return;
     }
     CBaseTask::work();

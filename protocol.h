@@ -5,7 +5,7 @@
 //业务类型,单数表示客服端->服务器，双数是服务器->客户端
 #include <iostream>
 using namespace std;
-const size_t MAX_BODY_LENGTH = 3 * 1024; // 3kB
+const size_t MAX_BODY_LENGTH = 10 * 1024; // 10kB
 const int MAX_BUSINESS_TYPE = 50; // 根据协议调整
 typedef struct HEAD {
 	int bussinessType;//请求体业务类型
@@ -143,7 +143,7 @@ typedef struct VideoData {
 //获取视频播放列表返回体 18
 typedef struct VideoListBack {
 	int num; //有效数据个数
-	int currentPage;//当前页
+	int totalPage;//总页数
 	VideoData videoDataArr[6];//视频信息列表
 }VideoListBack;
 
@@ -195,7 +195,7 @@ typedef struct ParkingInfoData {
 //车辆信息查询返回体 22，用什么数据结构返回？一个包直接包含所有数据吗
 typedef struct ParkingInfoBack {
 	int num; //有效数据个数
-	int currentPage;//当前页
+	int totalPage;//总页数
 	ParkingInfoData parkingInfoDataArr[6];//停车信息数组
 }ParkingInfoBack;
 
@@ -245,3 +245,10 @@ typedef struct UpdateCarNumberRequest
 	char entryTime[24];//入场时间
 }UpdateCarNumberRequest;
 //修改车牌返回体28
+
+
+//心跳服务请求 29
+typedef struct HeartServerRequest
+{
+	char account[12]; //账号
+}HeartServerBack;

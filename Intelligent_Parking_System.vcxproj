@@ -84,6 +84,7 @@
     <ClCompile Include="CEpollServer.cpp" />
     <ClCompile Include="CFileCheckTask.cpp" />
     <ClCompile Include="CFileUploadTask.cpp" />
+    <ClCompile Include="CHeartServerTask.cpp" />
     <ClCompile Include="CHostAddress.cpp" />
     <ClCompile Include="CLoginTask.cpp" />
     <ClCompile Include="CParkingInfoTask.cpp" />
@@ -115,6 +116,7 @@
     <ClInclude Include="CEpollServer.h" />
     <ClInclude Include="CFileCheckTask.h" />
     <ClInclude Include="CFileUploadTask.h" />
+    <ClInclude Include="CHeartServerTask.h" />
     <ClInclude Include="CHostAddress.h" />
     <ClInclude Include="CLoginTask.h" />
     <ClInclude Include="CParkingInfoTask.h" />

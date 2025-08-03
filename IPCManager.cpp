@@ -180,7 +180,8 @@ int IPCManager::saveData(char* data, size_t len, int mtype)
     sem_p(semid, IPCManager::INDEX_LOCK_SEM);
     //cout << "获取索引区全局信号量" << endl;
     memcpy(indexArr, shmaddr, sizeof(indexArr));
-    for (int i = 0; i < block_num; ++i) {
+    //前一半是前置可写后置可读，后一半是后置可写前置可读
+    for (int i = 0; i < block_num / 2; ++i) {
         if (indexArr[i] == 0) {
             targetIndex = i;
             //cout << "遍历索引区，找到可写索引" << targetIndex << endl;

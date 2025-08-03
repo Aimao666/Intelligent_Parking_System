@@ -31,7 +31,7 @@ void SendCodeTask::work()
 	std::string code = CTools::generateCode(6);
 	//记录验证码与手机号对应关系，然后发送短信
 	DataManager::messageCodeMap[request.account] = code;
-	int res = 1;
+	int res = 0;
 	//res = MessageCodeSender::getInstance().sendVerificationCode(request.account, code);
 
 	//准备返回体
@@ -55,10 +55,13 @@ void SendCodeTask::work()
 	backHead.crc = CTools::crc32((uint8_t*)&backBody, sizeof(CommonBack));
 	memcpy(buf, &backHead, sizeof(HEAD));
 	memcpy(buf + sizeof(HEAD), &backBody, sizeof(backBody));
-	if (write(clientFd, buf, sizeof(buf)) == -1) {
+	if ((res = write(clientFd, buf, sizeof(buf))) == -1) {
 		perror("发送验证码返回体 write err:");
 	}
 	else {
-		cout << "发送验证码返回体-发送成功" << endl;
+		pthread_mutex_lock(&DataManager::mutex);
+		++DataManager::sendPacket;
+		pthread_mutex_unlock(&DataManager::mutex);
+		cout << "发送验证码返回体-发送成功,发送字节数:"<< res << endl;
 	}
 }

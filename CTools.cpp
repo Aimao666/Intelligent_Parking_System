@@ -154,3 +154,23 @@ time_t CTools::convertTimeStr2TimeStamp(string timeStr)
     tt = mktime(&timeinfo);
     return tt;
 }
+/*
+函数功能：获取日期时间"%Y-%m-%d %H:%M:%S"
+函数参数：string format，获取的日期时间格式"%Y-%m-%d %H:%M:%S"
+函数返回：string 返回给定的格式所对应的当前时间字符串
+*/
+string CTools::getDatetime(string format) {
+    //获取日期
+    // 获取当前时间的时间戳
+    time_t currentTime = time(NULL);
+
+    // 将时间戳转换为本地时间
+    tm* localTime = localtime(&currentTime);
+    // 格式化输出时间的缓冲区
+    char buffer[100];
+
+    // 将时间格式化为字符串
+    // 格式：年-月-日 时:分:秒
+    strftime(buffer, sizeof(buffer), format.c_str(), localTime);
+    return string(buffer);
+}

@@ -18,7 +18,7 @@ void* thread_Function(void* arg) {
     int clientNums;
     int everyClientTaskNums;
     while (1) {
-        cout << "输入客户端连接数(数字,5-500)以开始压力测试：" << endl;
+        cout << "输入客户端连接数(数字,5-300)以开始压力测试：" << endl;
         cin >> clientNums;
         cout << "输入每个客户端要发起的登录任务数(数字,5-50)以开始压力测试：" << endl;
         cin >> everyClientTaskNums;
@@ -75,15 +75,17 @@ void* thread_Function(void* arg) {
                 pool->pushTask(unique_ptr<CBaseTask>(new CLoginTask(clientFd, buf, sizeof(buf))));
                 if ((clientIdx * REQUESTS_PER_CLIENT + req + 1) % 500 == 0)sleep(1);
             }
+            sleep(1);
             
         }
-        cout << "睡眠4s等待任务完成";
-        sleep(10);
+        cout << "睡眠5s等待任务完成";
+        sleep(5);
         cout << "所有任务已提交，共 " << NUM_CLIENTS * REQUESTS_PER_CLIENT << " 个请求" << endl;
         // 清理客户端连接
         for (int sockfd : clientSockets) {
             close(sockfd);
         }
+        clientSockets.clear();
     }
     return nullptr;
 }
@@ -92,6 +94,7 @@ int main(int argc, char* argv[])
 {
     printf("参数个数：%d\n", argc);
     printf("程序名称：%s\n", argv[0]);
+    pthread_mutex_init(&DataManager::mutex,NULL);
 	srand(unsigned(time(0)));
     IPCManager* ipc = IPCManager::getInstance();
     int msgid = ipc->initMsg(20001);
@@ -113,8 +116,13 @@ int main(int argc, char* argv[])
     CEpollServer* epollServer = new CEpollServer(10001, 5);
     pthread_t tid;
     pthread_create(&tid, NULL, thread_Function, epollServer);
-    epollServer->work();
-
+    try {
+        epollServer->work();
+    }
+    catch(exception e){
+        cerr << e.what() << endl;
+        cout << "epoll结束程序终止" << endl;
+    }
     //while (1) {
 
     //}

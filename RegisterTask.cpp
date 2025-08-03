@@ -66,4 +66,8 @@ void RegisterTask::work()
 			cout << "注册返回体-验证码检验失败-发送成功" << endl;
 		}
 	}
+
+	pthread_mutex_lock(&DataManager::mutex);
+	++DataManager::registerNum;
+	pthread_mutex_unlock(&DataManager::mutex);
 }

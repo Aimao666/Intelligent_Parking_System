@@ -36,6 +36,13 @@ public:
 
 	//时间字符串转时间戳
 	static time_t convertTimeStr2TimeStamp(string timeStr);
+
+	/*
+	函数功能：获取日期时间"%Y-%m-%d %H:%M:%S"
+	函数参数：string format，获取的日期时间格式"%Y-%m-%d %H:%M:%S"
+	函数返回：string 返回给定的格式所对应的当前时间字符串
+	*/
+	static string getDatetime(string format = "%Y-%m-%d %H:%M:%S");
 private:
 	CTools() = delete;
 	~CTools() = delete;

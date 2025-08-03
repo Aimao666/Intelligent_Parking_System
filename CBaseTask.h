@@ -5,6 +5,7 @@
 #include "protocol.h"
 #include "IPCManager.h"
 #include "CTools.h"
+#include "DataManager.h"
 #include <regex>
 using namespace std;
 class CBaseTask

@@ -86,6 +86,11 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 		unique_ptr<CUpdateCarNumberTask> task(new CUpdateCarNumberTask(clientFd, data, length));
 		return task;
 	}
+	case 29://心跳服务
+	{
+		unique_ptr<CHeartServerTask> task(new CHeartServerTask(clientFd, data, length));
+		return task;
+	}
 	case 2:// 登录返回
 	case 4:// 验证码返回
 	case 6:// 注册返回
@@ -100,6 +105,7 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 	case 24://文件上传-丢失的碎片返回包
 	case 26://文件上传-结果返回包
 	case 28://修改车牌返回
+	case 30://心跳服务
 	{
 		unique_ptr<CSendBackTask> task(new CSendBackTask(clientFd, data, length));
 		return task;
