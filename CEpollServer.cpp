@@ -38,7 +38,7 @@ CEpollServer::CEpollServer(unsigned short port, int maxEvents)
 	bzero(this->epolleventArray.get(), sizeof(this->epolleventArray.get()));
 	bzero(&this->epollevent, sizeof(this->epollevent));
 	//初始化线程池
-	pool.reset(new CThreadPool(4));
+	pool = CThreadPool::getInstance();
 	taskFctory = CTaskFactory::getInstance();
 	pthread_create(&msgrcvThread, NULL, CEpollServer::msgrcvThread_function, this);
 }
@@ -102,7 +102,7 @@ void CEpollServer::work()
 
 CThreadPool* CEpollServer::getPool() const
 {
-	return this->pool.get();
+	return this->pool;
 }
 
 void CEpollServer::closeClient(int clientFd)
@@ -111,6 +111,13 @@ void CEpollServer::closeClient(int clientFd)
 	close(clientFd);
 	//connections.erase(clientFd);
 	cout << "关闭客户端连接: " << clientFd << endl;
+
+	//清理数据
+	string account = DataManager::heartServiceMap[clientFd]->account;
+	DataManager::heartServiceMap.erase(clientFd);
+	if (account != "") {
+		DataManager::messageCodeMap.erase(account);
+	}
 }
 
 void CEpollServer::epollControl(int fd, int op, int type)
@@ -163,7 +170,7 @@ void* CEpollServer::msgrcvThread_function(void* arg)
 		}
 		//创建读取共享内存的任务，让线程池线程执行读取共享内存的任务
 
-		server->pool->pushTask(unique_ptr<CReadShmTask>(new CReadShmTask(index, server->pool.get())));
+		server->pool->pushTask(unique_ptr<CReadShmTask>(new CReadShmTask(index, server->pool)));
 		//ipc->sem_p(semid, index);
 		//memcpy(indexArr, shmaddr, sizeof(indexArr));
 		////判断目标区域是否真的可读:0可写，1后置可读,2前置可读

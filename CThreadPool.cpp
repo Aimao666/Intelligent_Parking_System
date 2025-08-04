@@ -1,5 +1,17 @@
 #include "CThreadPool.h"
 
+CThreadPool* CThreadPool::instance = nullptr;
+pthread_mutex_t CThreadPool::createMutex;
+CThreadPool* CThreadPool::getInstance()
+{
+	//线程锁，保证饿汉式线程安全
+	pthread_mutex_lock(&createMutex);
+	if (instance == nullptr) {
+		instance = new CThreadPool();
+	}
+	pthread_mutex_unlock(&createMutex);
+	return instance;
+}
 CThreadPool::CThreadPool(int initNum)
 {
 	if (initNum > 0 && initNum * 4 <= MAX_THREAD_NUM) {
@@ -12,6 +24,7 @@ CThreadPool::CThreadPool(int initNum)
 	}
 	//线程互斥量初始化
 	pthread_mutex_init(&mutex, NULL);
+	pthread_mutex_init(&createMutex, NULL);
 	//线程条件变量初始化
 	pthread_cond_init(&cond, NULL);
 
@@ -46,6 +59,28 @@ CThreadPool::~CThreadPool()
 	shouldExitFlagMap.clear();
 	while (!taskQueue.empty()) {
 		taskQueue.pop();
+	}
+}
+
+
+void CThreadPool::setMaxThreadNum(int maxThreadNum)
+{
+	if (maxThreadNum >= this->minThreadNum && maxThreadNum > 0 && maxThreadNum <= MAX_THREAD_NUM) {
+		this->maxThreadNum = maxThreadNum;
+		this->minThreadNum = maxThreadNum / 4;
+		cout << "线程池最大线程数设置成功：maxThreadNum=" << maxThreadNum << endl;
+	}
+}
+
+//打印线程池资源数
+void CThreadPool::printThreadPoolResource()
+{
+	if (instance) {
+		cout << "-----------------------------" << endl;
+		cout << "线程池 任务数：" << instance->taskQueue.size() << endl;
+		cout << "线程池 忙碌链表线程数：" << instance->busyList.size() << endl;
+		cout << "线程池 空闲链表线程数：" << instance->idleList.size() << endl;
+		cout << "-----------------------------" << endl;
 	}
 }
 
@@ -97,7 +132,7 @@ void CThreadPool::checkDestroyCondition()
 {
 	//检查是否需要移除多余线程
 	//任务队列为空&&当前线程数>最小线程数，此时将标志位设置为true，线程会在下轮执行时发现轮到自己销毁
-	if (this->taskQueue.empty() && currentThreadNum > minThreadNum) {
+	if ((this->taskQueue.empty() && currentThreadNum > minThreadNum) || currentThreadNum > maxThreadNum) {
 		cout << "线程销毁tid=" << pthread_self() << endl;
 		this->shouldExitFlagMap[pthread_self()] = true;
 	}
@@ -114,7 +149,7 @@ void CThreadPool::checkCreateCondition()
 	bool needCreate = false;
 
 	// 条件1：任务积压
-	if (pendingTasks > totalThreads * 1.2) {
+	if (pendingTasks > totalThreads * 1.2&& available > 0) {
 		needCreate = true;
 	}
 	// 条件2：全忙且有余量
@@ -193,11 +228,7 @@ void* CThreadPool::thread_function(void* arg)
 			pool->wait();
 		}
 
-		/*cout << "-----------------------------" << endl;
-		cout << "线程工作前 任务数：" << pool->taskQueue.size() << endl;
-		cout << "线程工作前 忙碌链表线程数：" << pool->busyList.size() << endl;
-		cout << "线程工作前 空闲链表线程数：" << pool->idleList.size() << endl;
-		cout << "-----------------------------" << endl;*/
+
 
 		//当前线程被唤醒了，且有任务能做且锁在自己手上
 		unique_ptr<CBaseTask> task = pool->popTask();
@@ -220,12 +251,8 @@ void* CThreadPool::thread_function(void* arg)
 		pool->checkDestroyCondition();
 		pool->unlock();
 
-		cout << "-----------------------------" << endl;
-		cout << "线程工作后 任务数：" << pool->taskQueue.size() << endl;
-		cout << "线程工作后 忙碌链表线程数：" << pool->busyList.size() << endl;
-		cout << "线程工作后 空闲链表线程数：" << pool->idleList.size() << endl;
-		cout << "-----------------------------" << endl;
 	}
 
 	return nullptr;
 }
+

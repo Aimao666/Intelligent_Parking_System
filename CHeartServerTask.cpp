@@ -23,7 +23,6 @@ void CHeartServerTask::work()
     //}
 
     pthread_mutex_lock(&DataManager::mutex);
-    ++DataManager::loginNum;
     auto iter = DataManager::heartServiceMap.find(clientFd);
     if (iter != DataManager::heartServiceMap.end()) {
         iter->second->account = request.account;

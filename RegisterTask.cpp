@@ -67,7 +67,4 @@ void RegisterTask::work()
 		}
 	}
 
-	pthread_mutex_lock(&DataManager::mutex);
-	++DataManager::registerNum;
-	pthread_mutex_unlock(&DataManager::mutex);
 }

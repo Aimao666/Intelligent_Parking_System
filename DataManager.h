@@ -26,6 +26,10 @@ public:
 	static int uploadVideoPlayRecordNum;//上传用户的历史播放视频记录业务数
 	static int uploadVideoInfoNum;//上传视频信息业务数
 	static int uploadFileNum;//完成文件上传的业务数
+	static int entryNum;//入场请求数
+	static int leaveNum;//出场请求数
+	static int agreeLeaveNum;//放行请求数
+	static int getCarListNum;//获取车辆信息列表的业务数
 
 
 

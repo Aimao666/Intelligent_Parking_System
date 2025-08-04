@@ -20,7 +20,6 @@
     <ClCompile Include="CBaseSocket.cpp">
       <Filter>netserver</Filter>
     </ClCompile>
-    <ClCompile Include="DataManager.cpp" />
     <ClCompile Include="SendCodeTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
@@ -87,6 +86,12 @@
     <ClCompile Include="CHeartServerTask.cpp">
       <Filter>task</Filter>
     </ClCompile>
+    <ClCompile Include="COffLineTask.cpp">
+      <Filter>task</Filter>
+    </ClCompile>
+    <ClCompile Include="DataManager.cpp">
+      <Filter>tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CBaseTask.h">
@@ -110,7 +115,6 @@
     <ClInclude Include="protocol.h">
       <Filter>netserver</Filter>
     </ClInclude>
-    <ClInclude Include="DataManager.h" />
     <ClInclude Include="RegisterTask.h">
       <Filter>task</Filter>
     </ClInclude>
@@ -177,6 +181,12 @@
     <ClInclude Include="CHeartServerTask.h">
       <Filter>task</Filter>
     </ClInclude>
+    <ClInclude Include="DataManager.h">
+      <Filter>tools</Filter>
+    </ClInclude>
+    <ClInclude Include="COffLineTask.h">
+      <Filter>task</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="task">
@@ -188,5 +198,8 @@
     <Filter Include="tools">
       <UniqueIdentifier>{f272e5a5-3231-4067-b58b-f01c67eb42f9}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\x64\Debug\config.ini" />
   </ItemGroup>
 </Project>

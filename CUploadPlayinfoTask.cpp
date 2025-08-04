@@ -32,7 +32,4 @@ void CUploadPlayinfoTask::work()
     }
     CBaseTask::work();
 
-    pthread_mutex_lock(&DataManager::mutex);
-    ++DataManager::uploadVideoPlayRecordNum;
-    pthread_mutex_unlock(&DataManager::mutex);
 }

@@ -32,7 +32,7 @@ void SendCodeTask::work()
 	//记录验证码与手机号对应关系，然后发送短信
 	DataManager::messageCodeMap[request.account] = code;
 	int res = 0;
-	//res = MessageCodeSender::getInstance().sendVerificationCode(request.account, code);
+	res = MessageCodeSender::getInstance().sendVerificationCode(request.account, code);
 
 	//准备返回体
 	HEAD backHead;

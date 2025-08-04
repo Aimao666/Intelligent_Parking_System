@@ -14,9 +14,6 @@ using namespace std;
 class CThreadPool
 {
 public:
-	//入参为初始化线程数，该线程池最大最小线程数与此有关
-	CThreadPool(int initNum = MIN_THREAD_NUM);
-	~CThreadPool();
 	//加锁，解锁二次封装
 	void lock();
 	void unlock();
@@ -43,7 +40,23 @@ public:
 	//线程执行函数
 	static void* thread_function(void* arg);
 
+	//获取单例
+	static CThreadPool* getInstance();
+
+	//设置最大线程数
+	void setMaxThreadNum(int maxThreadNum);
+
+	//打印线程池资源数
+	void printThreadPoolResource();
 private:
+	//单例模式
+	//入参为初始化线程数，该线程池最大最小线程数与此有关
+	CThreadPool(int initNum = MIN_THREAD_NUM);
+	~CThreadPool();
+	static pthread_mutex_t createMutex;
+	static CThreadPool* instance;
+
+
 	//线程数
 	int minThreadNum;
 	int currentThreadNum;

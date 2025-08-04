@@ -91,6 +91,11 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 		unique_ptr<CHeartServerTask> task(new CHeartServerTask(clientFd, data, length));
 		return task;
 	}
+	case 31://客户端下线
+	{
+		unique_ptr<COffLineTask> task(new COffLineTask(clientFd, data, length));
+		return task;
+	}
 	case 2:// 登录返回
 	case 4:// 验证码返回
 	case 6:// 注册返回
@@ -106,6 +111,7 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 	case 26://文件上传-结果返回包
 	case 28://修改车牌返回
 	case 30://心跳服务
+	case 32://客户端下线
 	{
 		unique_ptr<CSendBackTask> task(new CSendBackTask(clientFd, data, length));
 		return task;

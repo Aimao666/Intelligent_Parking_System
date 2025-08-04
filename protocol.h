@@ -252,3 +252,12 @@ typedef struct HeartServerRequest
 {
 	char account[12]; //账号
 }HeartServerBack;
+
+
+//客户端主动下线31
+typedef struct OffLineRequest
+{
+	char account[12]; //账号
+}OffLineRequest;
+//通用返回体 1同意下线 0的话不同意（文件需要上传完毕）
+//文件上传中->客户端发下线请求->服务器不同意->接收到文件上传确认包以后并且文件保存后->客户端重发下线请求->服务器同意下线

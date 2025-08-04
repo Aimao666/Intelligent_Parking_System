@@ -7,11 +7,13 @@
 #include "IPCManager.h"
 #include "protocol.h"
 #include "MessageCodeSender.h"
+#include "RrConfig.h"
+#include <libgen.h>
 using namespace std;
 //服务器压力测试，模拟上百客户端连接和上千次的任务请求
 void* thread_Function(void* arg) {
 
-    CEpollServer* server = (CEpollServer*)arg;
+    CEpollServer* server = static_cast<CEpollServer*>(arg);
     CThreadPool* pool = server->getPool();
     int socketfd = server->getSocketfd();
     sleep(1);
@@ -90,12 +92,123 @@ void* thread_Function(void* arg) {
     return nullptr;
 }
 
+//心跳服务线程
+void* heartServiceTimer(void* arg) {
+    const int TIME_SPAN = 60 * 3;//定时任务时间跨度
+    CEpollServer* epollServer = static_cast<CEpollServer*>(arg);
+    sleep(TIME_SPAN);
+    while (1) {
+        //string nowTime = CTools::getDatetime();
+        time_t nowTimeStamp = CTools::convertTimeStr2TimeStamp(CTools::getDatetime());
+        cout << "===========心跳超时下线============" << endl;
+        for (auto& pair : DataManager::heartServiceMap) {
+            time_t lastTimeStamp = CTools::convertTimeStr2TimeStamp(pair.second->lastServerTime);
+            time_t diffTime = nowTimeStamp - lastTimeStamp;
+            if (lastTimeStamp <= 0) {
+                cerr << "错误的时间戳：" << lastTimeStamp << " fd=" << pair.first << " account=" << pair.second->account << endl;
+                continue;
+            }
+            else if (diffTime > TIME_SPAN) {
+                //超时踢下线
+                HEAD head;
+                head.bussinessType = 31;
+                head.crc = 0;//表示被前置主动踢出
+                OffLineRequest body;
+                head.bussinessLength = sizeof(body);
+                strcpy(body.account, pair.second->account.c_str());
+                char buf[sizeof(head) + sizeof(body)];
+                memcpy(buf, &head, sizeof(HEAD));
+                memcpy(buf+sizeof(HEAD), &body, sizeof(body));
+                auto task = CTaskFactory::getInstance()->createTask(pair.first, head.bussinessType, buf, sizeof(buf));//主动踢出任务
+                if (task) {
+                    CThreadPool::getInstance()->pushTask(std::move(task));
+                }
+                head.bussinessType++;
+                CommonBack bodyBack;
+                head.bussinessLength = sizeof(bodyBack);
+                bodyBack.flag = 1;
+                strcpy(bodyBack.message, "心跳超时下线");
+                head.crc = CTools::crc32((uint8_t*)&bodyBack, sizeof(bodyBack));
+                char buffer[sizeof(head) + sizeof(bodyBack)];
+                memcpy(buffer, &head, sizeof(HEAD));
+                memcpy(buffer + sizeof(HEAD), &body, sizeof(bodyBack));
+                int res = write(pair.first, buffer, sizeof(buffer));
+                if (res > 0) {
+                    cout << "发送成功,业务类型:" << head.bussinessType << " (预计,实际)字节数：(" << 
+                        sizeof(buffer)<< "," << res << ")" << endl;
+                }
+                else {
+                    perror("心跳超时 write err:");
+                }
+                epollServer->closeClient(pair.first);
+                cout << "心跳超时下线fd=" << pair.first << endl;
+            }
+        }
+        cout << "===================================" << endl;
+        time_t nowTimeStamp2 = CTools::convertTimeStr2TimeStamp(CTools::getDatetime());
+        sleep(TIME_SPAN-(nowTimeStamp2-nowTimeStamp));
+    }
+}
+std::string getConfigPath() {
+    char exePath[256];
+    ssize_t count = readlink("/proc/self/exe", exePath, sizeof(exePath) - 1);
+    if (count <= 0) {
+        return "config.ini"; // 回退到当前目录
+    }
+    exePath[count] = '\0';
+
+    // 获取可执行文件所在目录
+    char* exeDir = dirname(exePath);
+
+    // 构建配置文件路径
+    std::string configPath = std::string(exeDir) + "/../config.ini";
+
+    // 检查文件是否存在
+    if (access(configPath.c_str(), R_OK) == 0) {
+        return configPath;
+    }
+
+    // 尝试其他位置
+    configPath = std::string(exeDir) + "/../../config.ini";
+    if (access(configPath.c_str(), R_OK) == 0) {
+        return configPath;
+    }
+
+    // 最后尝试当前目录
+    return "config.ini";
+}
+int loadConfig() {
+    char path[256];
+    cout << "pwd=" << getcwd(path, 256) << endl;
+    rr::RrConfig config;
+    string configPath = getConfigPath();
+    cout << "configPath=" << configPath << endl;
+    bool ret = config.ReadConfig(configPath);
+    if (ret == false) {
+        printf("ReadConfig is Error,Cfg=%s", configPath.c_str());
+        return 0;
+    }
+    std::string apiAccount = config.ReadString("ihuyi", "apiAccount", "");
+    std::string apiKey = config.ReadString("ihuyi", "apiKey", "");
+
+    std::cout << "apiAccount=" << apiAccount << std::endl;
+    std::cout << "apiKey=" << apiKey << std::endl;
+    MessageCodeSender::getInstance().init(apiAccount, apiKey);
+    return 1;
+}
 int main(int argc, char* argv[])
 {
-    printf("参数个数：%d\n", argc);
-    printf("程序名称：%s\n", argv[0]);
+    //加载配置文件
+    if (!loadConfig())
+    {
+        cout << "配置文件加载失败" << endl;
+        return 0;
+    }
+    //互斥锁初始化
     pthread_mutex_init(&DataManager::mutex,NULL);
 	srand(unsigned(time(0)));
+    
+    //IPC初始化
     IPCManager* ipc = IPCManager::getInstance();
     int msgid = ipc->initMsg(20001);
     int semid = ipc->initSem(20001, 1000, 1);
@@ -112,10 +225,13 @@ int main(int argc, char* argv[])
         return -1;
     }
     shmdt(shmaddr);
-    MessageCodeSender::getInstance().init("C65451499", "6bcebac852eaf1c5be1d3318e6c4674b");
     CEpollServer* epollServer = new CEpollServer(10001, 5);
+    //压力测试线程
     pthread_t tid;
     pthread_create(&tid, NULL, thread_Function, epollServer);
+    //心跳服务线程
+    pthread_t heartTid;
+    pthread_create(&heartTid, NULL, heartServiceTimer, epollServer);
     try {
         epollServer->work();
     }
@@ -128,3 +244,24 @@ int main(int argc, char* argv[])
     //}
     return 0;
 }
+
+/*
+    int main() {
+
+    rr::RrConfig config;
+    bool ret = config.ReadConfig("config.ini");
+    if (ret == false) {
+        printf("ReadConfig is Error,Cfg=%s", "config.ini");
+        return 1;
+    }
+    std::string HostName = config.ReadString("MYSQL", "HostName", "");
+    int Port = config.ReadInt("MYSQL", "Port", 0);
+    std::string UserName = config.ReadString("MYSQL", "UserName", "");
+
+    std::cout << "HostName=" << HostName << std::endl;
+    std::cout << "Port=" << Port << std::endl;
+    std::cout << "UserName=" << UserName << std::endl;
+
+    return 0;
+}
+*/

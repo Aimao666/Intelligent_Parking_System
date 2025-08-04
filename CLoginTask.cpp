@@ -24,7 +24,7 @@ void CLoginTask::work()
     }
 	CBaseTask::work();
     pthread_mutex_lock(&DataManager::mutex);
-    ++DataManager::loginNum;
     DataManager::heartServiceMap[clientFd]->account = request.account;
+    DataManager::heartServiceMap[clientFd]->lastServerTime = CTools::getDatetime();
     pthread_mutex_unlock(&DataManager::mutex);
 }

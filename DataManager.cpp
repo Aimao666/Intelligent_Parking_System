@@ -10,3 +10,7 @@ int DataManager::getVideoListNum;//获取用户视频列表的业务数
 int DataManager::uploadVideoPlayRecordNum;//上传用户的历史播放视频记录业务数
 int DataManager::uploadVideoInfoNum;//上传视频信息业务数
 int DataManager::uploadFileNum;//完成文件上传的业务数
+int DataManager::entryNum;//入场请求数
+int DataManager::leaveNum;//出场请求数
+int DataManager::agreeLeaveNum;//放行请求数
+int DataManager::getCarListNum;//获取车辆信息列表的业务数

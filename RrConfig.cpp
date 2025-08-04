@@ -5,7 +5,7 @@
 	int main() {
 
 	rr::RrConfig config;
-	bool ret = config.ReadConfig("config.ini.txt");
+	bool ret = config.ReadConfig("config.ini");
 	if (ret == false) {
 		printf("ReadConfig is Error,Cfg=%s", "config.ini");
 		return 1;
@@ -209,3 +209,5 @@ namespace rr
 		return atof(it_item->second.c_str());
 	}
 }
+
+

@@ -87,6 +87,7 @@
     <ClCompile Include="CHeartServerTask.cpp" />
     <ClCompile Include="CHostAddress.cpp" />
     <ClCompile Include="CLoginTask.cpp" />
+    <ClCompile Include="COffLineTask.cpp" />
     <ClCompile Include="CParkingInfoTask.cpp" />
     <ClCompile Include="CReadShmTask.cpp" />
     <ClCompile Include="CSendBackTask.cpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="CHeartServerTask.h" />
     <ClInclude Include="CHostAddress.h" />
     <ClInclude Include="CLoginTask.h" />
+    <ClInclude Include="COffLineTask.h" />
     <ClInclude Include="CParkingInfoTask.h" />
     <ClInclude Include="CReadShmTask.h" />
     <ClInclude Include="CSendBackTask.h" />
@@ -138,6 +140,9 @@
     <ClInclude Include="RrConfig.h" />
     <ClInclude Include="RegisterTask.h" />
     <ClInclude Include="SendCodeTask.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="bin\x64\Debug\config.ini" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>

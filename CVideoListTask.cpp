@@ -32,7 +32,4 @@ void CVideoListTask::work()
     }
     CBaseTask::work();
 
-    pthread_mutex_lock(&DataManager::mutex);
-    ++DataManager::getVideoListNum;
-    pthread_mutex_unlock(&DataManager::mutex);
 }

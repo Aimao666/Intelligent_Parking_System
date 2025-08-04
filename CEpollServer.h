@@ -53,7 +53,7 @@ private:
 	//已经发生事件的结构体数组(其中包含已经发生事件的fd)---就绪列表
 	unique_ptr<struct epoll_event[]>epolleventArray;
 
-	unique_ptr<CThreadPool> pool;
+	CThreadPool* pool;
 
 	//任务工厂
 	CTaskFactory* taskFctory;

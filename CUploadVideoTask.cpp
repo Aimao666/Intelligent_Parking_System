@@ -30,7 +30,4 @@ void CUploadVideoTask::work()
     cout << "++++++++++++++++++++" << endl;
     CBaseTask::work();
 
-    pthread_mutex_lock(&DataManager::mutex);
-    ++DataManager::uploadVideoInfoNum;
-    pthread_mutex_unlock(&DataManager::mutex);
 }
