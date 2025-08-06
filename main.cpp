@@ -19,12 +19,13 @@ void* thread_Function(void* arg) {
     sleep(1);
     int clientNums;
     int everyClientTaskNums;
-    while (1) {
+    //压测有点问题，先不做了
+    while(0){
         cout << "输入客户端连接数(数字,5-300)以开始压力测试：" << endl;
         cin >> clientNums;
         cout << "输入每个客户端要发起的登录任务数(数字,5-50)以开始压力测试：" << endl;
         cin >> everyClientTaskNums;
-        if (clientNums < 5 || everyClientTaskNums < 5)break;
+        if (clientNums < 5 || everyClientTaskNums < 5 || clientNums>300 || everyClientTaskNums>50)break;
 
         const int NUM_CLIENTS = clientNums;
         const int REQUESTS_PER_CLIENT = everyClientTaskNums; // 每个客户端everyClientTaskNums个请求
@@ -51,7 +52,7 @@ void* thread_Function(void* arg) {
             cout << "创建客户端连接 [" << i << "] FD=" << sockfd << endl;
         } 
         // 等待所有连接完成（简化处理）
-        sleep(1);
+        sleep(5);
 
 
 
@@ -75,13 +76,13 @@ void* thread_Function(void* arg) {
 
                 cout << "添加任务" << clientIdx * REQUESTS_PER_CLIENT + req + 1 << endl;
                 pool->pushTask(unique_ptr<CBaseTask>(new CLoginTask(clientFd, buf, sizeof(buf))));
-                if ((clientIdx * REQUESTS_PER_CLIENT + req + 1) % 500 == 0)sleep(1);
+                if ((req * NUM_CLIENTS + clientIdx + 1) % 300 == 0)sleep(1);
             }
-            sleep(1);
+            
             
         }
-        cout << "睡眠5s等待任务完成";
-        sleep(5);
+        cout << "睡眠30s等待任务完成";
+        sleep(30);
         cout << "所有任务已提交，共 " << NUM_CLIENTS * REQUESTS_PER_CLIENT << " 个请求" << endl;
         // 清理客户端连接
         for (int sockfd : clientSockets) {
@@ -94,7 +95,7 @@ void* thread_Function(void* arg) {
 
 //心跳服务线程
 void* heartServiceTimer(void* arg) {
-    const int TIME_SPAN = 60 * 3;//定时任务时间跨度
+    const int TIME_SPAN = 60 * 10;//定时任务时间跨度
     CEpollServer* epollServer = static_cast<CEpollServer*>(arg);
     sleep(TIME_SPAN);
     while (1) {

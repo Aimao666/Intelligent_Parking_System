@@ -40,6 +40,31 @@ void RegisterTask::work()
 			memcpy(taskData, &head, sizeof(HEAD));
 			IPCManager::getInstance()->saveData(this->taskData,this->dataLen,1);
 		}
+		else {
+			//发返回体告知验证码不对
+			HEAD backHead;
+			CommonBack backBody;
+			backHead.bussinessLength = sizeof(CommonBack);
+			backHead.bussinessType = 6;
+			backBody.flag = 0;
+			sprintf(backBody.message, "%s%s", request.account, "验证码校验不通过");
+			char buf[sizeof(HEAD) + sizeof(CommonBack)];
+			//返回包计算crc校验码
+			backHead.crc = CTools::crc32((uint8_t*)&backBody, sizeof(CommonBack));
+			memcpy(buf, &backHead, sizeof(HEAD));
+			memcpy(buf + sizeof(HEAD), &backBody, sizeof(CommonBack));
+			//校验不通过，未知原因，因此打印一下手机号-验证码map
+			cout << "手机号：验证码" << endl;
+			for (auto pair : DataManager::messageCodeMap) {
+				cout << pair.first << ":" << pair.second << endl;
+			}
+			if (write(clientFd, buf, sizeof(buf)) == -1) {
+				perror("验证码检验失败 write err:");
+			}
+			else {
+				cout << "注册返回体-验证码检验失败-发送成功" << endl;
+			}
+		}
 	}
 	else {
 		//发返回体告知验证码不对
@@ -48,22 +73,17 @@ void RegisterTask::work()
 		backHead.bussinessLength = sizeof(CommonBack);
 		backHead.bussinessType = 6;
 		backBody.flag = 0;
-		sprintf(backBody.message, "%s%s", request.account,"验证码校验不通过");
+		sprintf(backBody.message, "%s%s", request.account, "请先获取验证码");
 		char buf[sizeof(HEAD) + sizeof(CommonBack)];
 		//返回包计算crc校验码
 		backHead.crc = CTools::crc32((uint8_t*)&backBody, sizeof(CommonBack));
 		memcpy(buf, &backHead, sizeof(HEAD));
 		memcpy(buf + sizeof(HEAD), &backBody, sizeof(CommonBack));
-		//校验不通过，未知原因，因此打印一下手机号-验证码map
-		cout << "手机号：验证码" << endl;
-		for (auto pair : DataManager::messageCodeMap) {
-			cout << pair.first << ":" << pair.second << endl;
-		}
 		if (write(clientFd, buf, sizeof(buf)) == -1) {
-			perror("验证码检验失败 write err:");
+			perror("验证码 write err:");
 		}
 		else {
-			cout << "注册返回体-验证码检验失败-发送成功" << endl;
+			cout << "注册返回体-请先获取验证码-发送成功" << endl;
 		}
 	}
 

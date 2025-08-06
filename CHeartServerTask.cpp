@@ -30,5 +30,6 @@ void CHeartServerTask::work()
     }
 
     pthread_mutex_unlock(&DataManager::mutex);
-    
+    cout << "用户" << request.account << "心跳续费" << endl;
+    CBaseTask::work();
 }

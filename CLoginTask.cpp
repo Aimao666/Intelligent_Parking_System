@@ -24,7 +24,22 @@ void CLoginTask::work()
     }
 	CBaseTask::work();
     pthread_mutex_lock(&DataManager::mutex);
-    DataManager::heartServiceMap[clientFd]->account = request.account;
-    DataManager::heartServiceMap[clientFd]->lastServerTime = CTools::getDatetime();
+    /*DataManager::heartServiceMap[clientFd]->account = request.account;
+    DataManager::heartServiceMap[clientFd]->lastServerTime = CTools::getDatetime();*/
+    // 检查条目是否存在且有效
+    auto it = DataManager::heartServiceMap.find(clientFd);
+    if (it != DataManager::heartServiceMap.end() && it->second != nullptr) {
+        it->second->account = request.account;
+        it->second->lastServerTime = CTools::getDatetime();
+    }
+    else {
+        // 记录错误日志
+        std::cerr << "警告：clientFd=" << clientFd << " 不在心跳映射中" << std::endl;
+
+        // 创建新条目
+        DataManager::heartServiceMap[clientFd] = unique_ptr<DataManager::ClientValue>(new DataManager::ClientValue);
+        DataManager::heartServiceMap[clientFd]->account = request.account;
+        DataManager::heartServiceMap[clientFd]->lastServerTime = CTools::getDatetime();
+    }
     pthread_mutex_unlock(&DataManager::mutex);
 }
