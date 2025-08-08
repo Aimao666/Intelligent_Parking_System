@@ -23,7 +23,7 @@ using namespace std;
 class CTaskFactory
 {
 public:
-	~CTaskFactory() = default;
+	~CTaskFactory();
 	static CTaskFactory* getInstance();
 	unique_ptr<CBaseTask> createTask(int clientFd, int bussinessType, char* data, size_t length);
 private:

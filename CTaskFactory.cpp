@@ -2,6 +2,17 @@
 CTaskFactory* CTaskFactory::instance = nullptr;
 pthread_mutex_t CTaskFactory::mutex;
 
+
+CTaskFactory::CTaskFactory()
+{
+	pthread_mutex_init(&mutex, NULL);
+}
+
+CTaskFactory::~CTaskFactory()
+{
+	pthread_mutex_destroy(&mutex);
+}
+
 CTaskFactory* CTaskFactory::getInstance()
 {
 	pthread_mutex_lock(&mutex);
@@ -121,9 +132,4 @@ unique_ptr<CBaseTask> CTaskFactory::createTask(int clientFd, int bussinessType, 
 		break;
 	}
 	return nullptr;
-}
-
-CTaskFactory::CTaskFactory()
-{
-	pthread_mutex_init(&mutex, NULL);
 }

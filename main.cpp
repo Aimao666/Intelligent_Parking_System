@@ -235,11 +235,14 @@ int main(int argc, char* argv[])
     pthread_create(&heartTid, NULL, heartServiceTimer, epollServer);
     try {
         epollServer->work();
+        pthread_mutex_destroy(&DataManager::mutex);
     }
     catch(exception e){
         cerr << e.what() << endl;
+        pthread_mutex_destroy(&DataManager::mutex);
         cout << "epoll结束程序终止" << endl;
     }
+    cout << "程序结束" << endl;
     //while (1) {
 
     //}

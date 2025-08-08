@@ -39,6 +39,7 @@ IPCManager::~IPCManager()
         }
 
     }
+    pthread_mutex_destroy(&mutex);
 }
 
 int IPCManager::initShm(key_t key, size_t size)
