@@ -73,7 +73,7 @@ private:
 	//线程条件变量，作用是让线程出现阻碍等待和唤醒的操作，允许多个线程在同一个条件变量上等待，可以单独唤醒等待队列队头也可广播唤醒
 	pthread_cond_t cond;
 	//让线程在任务队列为空，且当前线程数大于最小线程数时自动销毁的思路
-	map<pthread_t, bool> shouldExitFlagMap;//线程退出标志位map，各自维护自己的标志
+	map<pthread_t, bool> exitFlagMap;//线程退出标志位map，各自维护自己的标志
 
 };
 

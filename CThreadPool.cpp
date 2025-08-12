@@ -35,7 +35,7 @@ CThreadPool::CThreadPool(int initNum)
 		//添加到空闲列表
 		idleList.push_back(tid);
 		//是否需要退出标记为否
-		this->shouldExitFlagMap.insert(make_pair(tid, false));
+		this->exitFlagMap.insert(make_pair(tid, false));
 	}
 }
 
@@ -43,20 +43,20 @@ CThreadPool::~CThreadPool()
 { 
 	// 1. 设置所有线程的退出标志
 	lock();
-	for (auto& pair : shouldExitFlagMap) {
+	for (auto& pair : exitFlagMap) {
 		pair.second = true; // 标记所有线程需要退出
 	}
 	// 2. 唤醒所有等待的线程
 	pthread_cond_broadcast(&cond); // 广播唤醒所有线程
 	unlock();
 	// 3. 等待所有线程退出
-	for (auto pair : shouldExitFlagMap) {
+	for (auto pair : exitFlagMap) {
 		pthread_join(pair.first, nullptr);
 	}
 	// 4. 清理资源
 	pthread_mutex_destroy(&mutex);
 	pthread_cond_destroy(&cond);
-	shouldExitFlagMap.clear();
+	exitFlagMap.clear();
 	while (!taskQueue.empty()) {
 		taskQueue.pop();
 	}
@@ -134,7 +134,7 @@ void CThreadPool::checkDestroyCondition()
 	//任务队列为空&&当前线程数>最小线程数，此时将标志位设置为true，线程会在下轮执行时发现轮到自己销毁
 	if ((this->taskQueue.empty() && currentThreadNum > minThreadNum) || currentThreadNum > maxThreadNum) {
 		cout << "线程销毁tid=" << pthread_self() << endl;
-		this->shouldExitFlagMap[pthread_self()] = true;
+		this->exitFlagMap[pthread_self()] = true;
 	}
 }
 
@@ -163,17 +163,14 @@ void CThreadPool::checkCreateCondition()
 
 	// 3. 创建线程
 	if (needCreate) {
-		// 计算创建数量：至少1个，最多3个或可用量
-		int toCreate = min(available, max(1, min(3, pendingTasks / 5)));
 
-		for (int i = 0; i < toCreate; i++) {
-			pthread_t tid;
-			if (pthread_create(&tid, NULL, thread_function, this) == 0) {
-				++currentThreadNum;
-				idleList.push_back(tid);
-				shouldExitFlagMap[tid] = false;
-				cout << "创建新线程: " << tid << endl;
-			}
+		pthread_t tid;
+		if (pthread_create(&tid, NULL, thread_function, this) == 0) {
+			++currentThreadNum;
+			idleList.push_back(tid);
+			exitFlagMap[tid] = false;
+			cout << "创建新线程: " << tid << endl;
+			printThreadPoolResource();//创建新线程时打印
 		}
 	}
 }
@@ -214,15 +211,16 @@ void* CThreadPool::thread_function(void* arg)
 	while (1) {
 		pool->lock();
 		//检查线程是否需要退出
-		if (pool->shouldExitFlagMap[tid]) {
+		if (pool->exitFlagMap[tid]) {
 			pool->idleList.remove(tid);
-			pool->shouldExitFlagMap.erase(tid);
+			pool->exitFlagMap.erase(tid);
 			--pool->currentThreadNum;
+			pool->printThreadPoolResource();//线程销毁时打印
 			pool->unlock();
 			pthread_exit(nullptr);  // 安全退出，后续代码不再执行
 		}
 
-		while (pool->queueIsEmpty() && !pool->shouldExitFlagMap[tid]) {
+		while (pool->queueIsEmpty() && !pool->exitFlagMap[tid]) {
 			//让线程进入空闲链表之后处于阻塞 因为现在任务队列为空
 			cout << "当前无任务线程阻塞id=" << tid << endl;
 			pool->wait();

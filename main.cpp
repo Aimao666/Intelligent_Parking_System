@@ -20,12 +20,12 @@ void* thread_Function(void* arg) {
     int clientNums;
     int everyClientTaskNums;
     //压测有点问题，先不做了
-    while(0){
-        cout << "输入客户端连接数(数字,5-300)以开始压力测试：" << endl;
+    while(1){
+        cout << "输入客户端连接数(数字,5-1000)以开始压力测试：" << endl;
         cin >> clientNums;
-        cout << "输入每个客户端要发起的登录任务数(数字,5-50)以开始压力测试：" << endl;
+        cout << "输入每个客户端要发起的登录任务数(数字,5-20)以开始压力测试：" << endl;
         cin >> everyClientTaskNums;
-        if (clientNums < 5 || everyClientTaskNums < 5 || clientNums>300 || everyClientTaskNums>50)break;
+        if (clientNums < 5 || everyClientTaskNums < 5 || clientNums>1000 || everyClientTaskNums>20)break;
 
         const int NUM_CLIENTS = clientNums;
         const int REQUESTS_PER_CLIENT = everyClientTaskNums; // 每个客户端everyClientTaskNums个请求
@@ -34,7 +34,7 @@ void* thread_Function(void* arg) {
         sockaddr_in sockadd;
         sockadd.sin_port = htons(10001);
         sockadd.sin_family = AF_INET;
-        sockadd.sin_addr.s_addr = inet_addr("192.168.204.144");
+        sockadd.sin_addr.s_addr = inet_addr("127.0.0.1");
         // 创建客户端连接池
         vector<int> clientSockets;
         for (int i = 0; i < NUM_CLIENTS; i++) {
@@ -53,7 +53,6 @@ void* thread_Function(void* arg) {
         } 
         // 等待所有连接完成（简化处理）
         sleep(5);
-
 
 
         long tel = 17716777930;
@@ -75,14 +74,16 @@ void* thread_Function(void* arg) {
                 memcpy(buf + sizeof(HEAD), &request, sizeof(request));
 
                 cout << "添加任务" << clientIdx * REQUESTS_PER_CLIENT + req + 1 << endl;
-                pool->pushTask(unique_ptr<CBaseTask>(new CLoginTask(clientFd, buf, sizeof(buf))));
-                if ((req * NUM_CLIENTS + clientIdx + 1) % 300 == 0)sleep(1);
+                pool->pushTask(unique_ptr<CBaseTask>(new CLoginTask(-1, buf, sizeof(buf))));
+                //打印线程池资源情况
+                pool->printThreadPoolResource();
+                if ((req * NUM_CLIENTS + clientIdx + 1) % 1000 == 0)sleep(1);
             }
             
             
         }
-        cout << "睡眠30s等待任务完成";
-        sleep(30);
+        cout << "睡眠等待任务完成";
+        sleep(10);
         cout << "所有任务已提交，共 " << NUM_CLIENTS * REQUESTS_PER_CLIENT << " 个请求" << endl;
         // 清理客户端连接
         for (int sockfd : clientSockets) {
@@ -243,29 +244,7 @@ int main(int argc, char* argv[])
         cout << "epoll结束程序终止" << endl;
     }
     cout << "程序结束" << endl;
-    //while (1) {
 
-    //}
-    return 0;
-}
-
-/*
-    int main() {
-
-    rr::RrConfig config;
-    bool ret = config.ReadConfig("config.ini");
-    if (ret == false) {
-        printf("ReadConfig is Error,Cfg=%s", "config.ini");
-        return 1;
-    }
-    std::string HostName = config.ReadString("MYSQL", "HostName", "");
-    int Port = config.ReadInt("MYSQL", "Port", 0);
-    std::string UserName = config.ReadString("MYSQL", "UserName", "");
-
-    std::cout << "HostName=" << HostName << std::endl;
-    std::cout << "Port=" << Port << std::endl;
-    std::cout << "UserName=" << UserName << std::endl;
 
     return 0;
 }
-*/
